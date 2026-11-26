@@ -5,7 +5,7 @@ import asyncio
 
 import httpx
 
-import sellbird.dashboard as dash
+import sellhawk.dashboard as dash
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 from tests.test_suite_screens import agent  # noqa: F401  (fixture)
 

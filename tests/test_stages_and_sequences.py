@@ -8,12 +8,12 @@ from types import SimpleNamespace
 import pytest
 
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
-from sellbird import deals
-from sellbird.agents.writer import Writer, follow_up_delay, sequence_shape
-from sellbird.booking import said_they_booked
-from sellbird.config import WriterConfig
-from sellbird.email_style import BREAKUP_MAX_WORDS, FOLLOW_UP_MAX_WORDS, max_words
-from sellbird.state import MEETING_BOOKED, StateManager
+from sellhawk import deals
+from sellhawk.agents.writer import Writer, follow_up_delay, sequence_shape
+from sellhawk.booking import said_they_booked
+from sellhawk.config import WriterConfig
+from sellhawk.email_style import BREAKUP_MAX_WORDS, FOLLOW_UP_MAX_WORDS, max_words
+from sellhawk.state import MEETING_BOOKED, StateManager
 
 
 def run(coro):
@@ -29,7 +29,7 @@ def _sql(db, query, params=()):
 
 @pytest.fixture
 def state(tmp_path):
-    sm = StateManager(str(tmp_path / "sellbird.db"))
+    sm = StateManager(str(tmp_path / "sellhawk.db"))
     run(sm.init_db())
     for pid, company in (("p1", "co1"), ("p2", "co1"), ("p3", "co2")):
         _sql(sm.db_path, "INSERT INTO prospects (id, company_id, first_name, email, company, status) "
@@ -84,11 +84,11 @@ def test_everyone_has_a_stage_and_a_source(state):
     assert run(state.count_by_stage_and_source())["sources"] == {"cold_email": 2, "import": 1}
 
 
-def test_sellbird_moves_people_forward_and_never_back(state):
+def test_sellhawk_moves_people_forward_and_never_back(state):
     run(state.update_prospect_status("p1", "replied"))
     assert _sql(state.db_path, "SELECT stage FROM prospects WHERE id = 'p1'") == [("talking",)]
     assert run(state.set_stage("p1", "new")) is None                 # not backwards
-    assert run(state.set_stage("p1", "won")) is None                 # Sellbird never claims a win
+    assert run(state.set_stage("p1", "won")) is None                 # Sellhawk never claims a win
     assert run(state.set_stage("p1", "proposal")) is None
     change = run(state.set_stage("p1", "proposal", by="you", reason="sent the quote", manual=True))
     assert (change["from"], change["to"], change["by"]) == ("talking", "proposal", "you")
@@ -97,7 +97,7 @@ def test_sellbird_moves_people_forward_and_never_back(state):
     assert _sql(state.db_path, "SELECT stage FROM prospects WHERE id = 'p1'") == [("won",)]
     history = run(state.get_stage_events("p1"))
     assert [(e["from_stage"], e["to_stage"], e["changed_by"]) for e in history] == [
-        ("proposal", "won", "agent"), ("talking", "proposal", "you"), ("new", "talking", "sellbird")]
+        ("proposal", "won", "agent"), ("talking", "proposal", "you"), ("new", "talking", "sellhawk")]
 
 
 def test_an_opt_out_is_lost_and_undoing_it_is_talking(state):
@@ -183,7 +183,7 @@ def test_moving_a_stage_and_recording_a_meeting_from_the_dashboard(client):
 
 
 def test_the_agent_may_move_stages_and_record_bookings_but_not_more():
-    from sellbird.agent_policy import agent_may
+    from sellhawk.agent_policy import agent_may
     assert agent_may("GET", "/api/pipeline") and agent_may("GET", "/api/calendar")
     assert agent_may("POST", "/api/prospects/p1/stage") and agent_may("POST", "/api/prospects/p1/meeting")
     assert not agent_may("POST", "/api/outbox/o1/approve")

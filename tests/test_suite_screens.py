@@ -9,9 +9,9 @@ from types import SimpleNamespace
 import pytest
 from fastapi.testclient import TestClient
 
-import sellbird.dashboard as dash
-from sellbird import agent_policy, deliverability as d, importer
-from sellbird.state import StateManager
+import sellhawk.dashboard as dash
+from sellhawk import agent_policy, deliverability as d, importer
+from sellhawk.state import StateManager
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 
 
@@ -272,7 +272,7 @@ def test_reading_a_list_keeps_each_address_once_and_says_what_it_left_out():
 
 
 def test_an_import_checks_addresses_skips_the_never_email_list_and_emails_nobody(tmp_path):
-    state = StateManager(str(tmp_path / "sellbird.db"))
+    state = StateManager(str(tmp_path / "sellhawk.db"))
     run(state.init_db())
     run(state.add_suppression("address", "gone@example.net", "bounced", source="handler"))
     people, _ = importer.read_rows(CSV)
@@ -298,7 +298,7 @@ def test_an_import_checks_addresses_skips_the_never_email_list_and_emails_nobody
 
 
 def test_an_unchecked_import_is_all_guesses_which_are_never_sent_to(tmp_path):
-    state = StateManager(str(tmp_path / "sellbird.db"))
+    state = StateManager(str(tmp_path / "sellhawk.db"))
     run(state.init_db())
     counts = run(importer.import_people(state, [{"email": "kit@example.com", "first_name": "Kit", "last_name": "",
                                                   "title": "", "company": "", "phone": "", "linkedin_url": ""}]))

@@ -1,6 +1,6 @@
 # DIY Prospecting Tactics
 
-Sellbird's playbook for finding leads without expensive tools like Apollo, ZoomInfo, or Clearbit.
+Sellhawk's playbook for finding leads without expensive tools like Apollo, ZoomInfo, or Clearbit.
 
 ---
 
@@ -73,7 +73,7 @@ Most companies list leadership on /team, /about, /about-us, /our-team, /people, 
 
 ### Tech Stack Discovery
 - **BuiltWith/Wappalyzer**: Identify their current tools
-- Useful for: "I see you're using {{competitor}} — here's how we compare"
+- Useful for: "I see you're using {{competitor}}, here's how we compare"
 - Free browser extensions available
 
 ---
@@ -106,14 +106,14 @@ Some domains accept all addresses (catch-all). SMTP verification won't work for 
 
 High-value timing signals that indicate a prospect might be ready to buy:
 
-1. **New hire in relevant role** — they're building the function you support
-2. **Recent funding** — they have budget to spend
-3. **New product launch** — they need marketing/growth support
-4. **Job posting for your product's domain** — they're investing in the area
-5. **Competitor using your product** — social proof angle
-6. **Company expansion** — growing teams need new tools
-7. **Leadership change** — new leaders bring new tools
-8. **Tech stack change** — they're evaluating alternatives
+1. **New hire in relevant role**: they're building the function you support
+2. **Recent funding**: they have budget to spend
+3. **New product launch**: they need marketing/growth support
+4. **Job posting for your product's domain**: they're investing in the area
+5. **Competitor using your product**: social proof angle
+6. **Company expansion**: growing teams need new tools
+7. **Leadership change**: new leaders bring new tools
+8. **Tech stack change**: they're evaluating alternatives
 
 ### Where to find trigger events (free)
 - Google News alerts for target companies

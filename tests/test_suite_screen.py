@@ -1,4 +1,4 @@
-"""Everything Sellbird does: every part of the suite with its state."""
+"""Everything Sellhawk does: every part of the suite with its state."""
 
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 from tests.test_suite_screens import agent  # noqa: F401  (fixture)

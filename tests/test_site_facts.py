@@ -10,13 +10,13 @@ from types import SimpleNamespace
 import pytest
 import pytest_asyncio
 
-from sellbird.agents.writer import Writer
-from sellbird.config import ComplianceConfig
-from sellbird.models.company import Company
-from sellbird.models.prospect import Prospect
-from sellbird.signals import seed_signal_catalog
-from sellbird.site_facts import HEADER, STALE_DAYS, THIN_PAGES, site_facts
-from sellbird.state import StateManager
+from sellhawk.agents.writer import Writer
+from sellhawk.config import ComplianceConfig
+from sellhawk.models.company import Company
+from sellhawk.models.prospect import Prospect
+from sellhawk.signals import seed_signal_catalog
+from sellhawk.site_facts import HEADER, STALE_DAYS, THIN_PAGES, site_facts
+from sellhawk.state import StateManager
 
 
 @pytest_asyncio.fixture
@@ -183,7 +183,7 @@ async def test_a_company_with_no_findings_adds_no_section(state):
 
 
 def test_the_setting_is_on_by_default():
-    from sellbird.config import WriterConfig
+    from sellhawk.config import WriterConfig
     assert WriterConfig().site_facts is True
     assert WriterConfig(site_facts=False).site_facts is False
 

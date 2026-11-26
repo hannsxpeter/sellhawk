@@ -2,7 +2,7 @@
 
 Prompts carry untrusted text (prospect replies, scraped pages). If Claude had
 tools, an instruction hidden in that text could run commands or reach the
-operator's connectors. Sellbird only needs text back, so it gets none. And the
+operator's connectors. Sellhawk only needs text back, so it gets none. And the
 output is an email to a third party, so the operator's CLAUDE.md, hooks,
 skills, plugins and settings must not load into the call either.
 """
@@ -16,11 +16,11 @@ from pathlib import Path
 import pytest
 import pytest_asyncio
 
-import sellbird.brain as brain_mod
-from sellbird import claude_runtime
-from sellbird.brain import Brain
-from sellbird.paths import PROJECT_ROOT
-from sellbird.state import StateManager
+import sellhawk.brain as brain_mod
+from sellhawk import claude_runtime
+from sellhawk.brain import Brain
+from sellhawk.paths import PROJECT_ROOT
+from sellhawk.state import StateManager
 
 # The real probe, before conftest swaps in a stand-in for each test.
 _REAL_PROBE_HELP = claude_runtime._probe_help
@@ -90,7 +90,7 @@ async def test_brain_runs_claude_without_the_operators_customisation(state, monk
 
 @pytest.mark.asyncio
 async def test_claude_runs_in_a_fresh_empty_directory_outside_the_checkout(state, monkeypatch):
-    """The checkout's CLAUDE.md (the setup wizard) and any ancestor's must
+    """The checkout's AGENTS.md / CLAUDE.md pointer and any ancestor's must
     not apply: the call runs in an empty temporary directory, removed after."""
     monkeypatch.chdir(PROJECT_ROOT)
     captured = _capture(monkeypatch)

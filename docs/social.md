@@ -1,21 +1,21 @@
 # Social playbooks
 
-Sellbird keeps the playbooks your own agent writes social posts from, and holds every drafted post until you approve it. That is all it does on social: **it posts nothing, and it stores no social login.**
+Sellhawk keeps the playbooks your own agent writes social posts from, and holds every drafted post until you approve it. That is all it does on social: **it posts nothing, and it stores no social login.**
 
 ## How it works
 
-1. **You switch on the playbooks you want.** Outbound → Social, or `sellbird social on finished_work`. All of them start off.
+1. **You switch on the playbooks you want.** Outbound → Social, or `sellhawk social on finished_work`. All of them start off.
 2. **Your agent drafts a post** from a playbook that is on, for one platform. Ask it: "Draft a LinkedIn post about the job we finished this week."
 3. **The draft waits for you.** Approve it, edit it, or skip it, on the same screen. Today shows when one is waiting.
 4. **An approved post goes out one of two ways, both yours.** Copy it and post it yourself. Or, if you connected that social account to your agent, ask the agent to post it; it posts the exact text you approved and marks it as posted with the link.
 
-Sellbird runs on your own computer and reaches out to no social network. Posting through your agent uses whatever connection you gave that agent, in the agent's own settings. Sellbird never sees those credentials.
+Sellhawk runs on your own computer and reaches out to no social network. Posting through your agent uses whatever connection you gave that agent, in the agent's own settings. Sellhawk never sees those credentials.
 
 ## What the approval is, honestly
 
-Sellbird gives your agent no way to approve a post, and refuses to mark a post as posted unless you approved it. It cannot stop a tool outside Sellbird: an agent that has its own connection to a social account could post without asking. The skill your agent reads (`skills/posting_to_social.md`) tells it never to post anything unapproved and to post the approved text exactly. If you want a hard guarantee, do not connect social accounts to your agent, and post by hand.
+Sellhawk gives your agent no way to approve a post, and refuses to mark a post as posted unless you approved it. It cannot stop a tool outside Sellhawk: an agent that has its own connection to a social account could post without asking. The skill your agent reads (`skills/posting_to_social.md`) tells it never to post anything unapproved and to post the approved text exactly. If you want a hard guarantee, do not connect social accounts to your agent, and post by hand.
 
-## The playbooks Sellbird ships
+## The playbooks Sellhawk ships
 
 | Playbook | Platforms | For |
 |---|---|---|
@@ -49,7 +49,7 @@ What to write, how long, and what to leave out.
 
 - X: 280 characters. Instagram: 2,200. LinkedIn: 3,000. Facebook: 2,000. A longer draft is refused.
 - 20 drafts can wait at once. Past that, drafting is refused until you approve or skip some.
-- Sellbird stores the text and a note about which photos go with it. It stores no images.
+- Sellhawk stores the text and a note about which photos go with it. It stores no images.
 
 ## Your agent's tools
 
@@ -65,7 +65,7 @@ The agent cannot switch a playbook on, approve, edit or skip.
 ## Commands
 
 ```bash
-sellbird social                    # playbooks, and posts waiting or approved
-sellbird social on finished_work   # switch a playbook on (off to switch it off)
-sellbird social approve POST_ID    # approve a waiting post (skip to skip it)
+sellhawk social                    # playbooks, and posts waiting or approved
+sellhawk social on finished_work   # switch a playbook on (off to switch it off)
+sellhawk social approve POST_ID    # approve a waiting post (skip to skip it)
 ```

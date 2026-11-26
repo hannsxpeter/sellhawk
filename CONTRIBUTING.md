@@ -1,12 +1,12 @@
-# Contributing to Sellbird
+# Contributing to Sellhawk
 
 For anyone changing this repository and opening pull requests, and above all
-for coding agents (Claude Code, Codex, Cursor, Aider). `CLAUDE.md` is different:
-it guides someone *using* Sellbird. This file is about contributing to it.
+for coding agents (Claude Code, Codex, Cursor, Aider). `AGENTS.md` is different:
+it guides someone *using* Sellhawk. This file is about contributing to it.
 
 ## No real contact data, anywhere it gets published
 
-This repository is public. Sellbird's job is finding real people at real businesses,
+This repository is public. Sellhawk's job is finding real people at real businesses,
 so testing it turns up real names, addresses and phone numbers. Those stay on
 your machine. A pull request once listed thirteen real people's work addresses,
 with their names and employers, in its description and test fixtures, and
@@ -19,7 +19,7 @@ issue:**
 - a real person's name, email address, phone number or street address;
 - a real business found while testing: its name, domain, website URL or
   location, including inside HTML copied from its site;
-- anything taken from `data/sellbird.db`, a user's export, an Outbox item, a reply,
+- anything taken from `data/sellhawk.db`, a user's export, an Outbox item, a reply,
   or a live test run.
 
 **Do this instead:**
@@ -59,39 +59,10 @@ Every test or verification email goes to an address you own, set up for that
 purpose. Never to an address from a database, an export, a reply or a fixture.
 Tests never send real email: use the fake providers in `tests/`.
 
-## Releases (maintainers)
+## License and sign-off
 
-Every GitHub release note opens with this line, so people watching releases know where announcements go:
-
-```markdown
-> **Follow [@sellbirdagent](https://x.com/sellbirdagent) on X** for new releases, features and the roadmap.
-```
-
-Announce the release on X first, then link that post from the release notes.
-
-## License, CLA and sign-off
-
-Sellbird is licensed under the GNU Affero General Public License v3.0 only
-(see `LICENSE`). Code from the MIT-licensed Harvey releases (0.3.x and
-earlier) keeps its MIT notice in `NOTICE`.
-
-### Contributor License Agreement
-
-Before your first pull request can be merged, sign the
-[Sellbird Contributor License Agreement](CLA.md). You keep the copyright in
-your work. The CLA gives Sellbird a permanent license to use your contribution
-anywhere, including in the hosted version of Sellbird, and to release it under
-other licenses later. Your contribution is still published under the AGPL for
-everyone else.
-
-To sign, post this comment on your pull request:
-
-```text
-I have read the Sellbird CLA and I agree to it.
-```
-
-A bot checks every pull request and records who signed. You only sign once,
-and it covers your earlier contributions too.
+Sellhawk is licensed under the GNU Affero General Public License v3.0 only
+(see `LICENSE`). Upstream attribution is in `NOTICE`.
 
 ### Sign-off
 

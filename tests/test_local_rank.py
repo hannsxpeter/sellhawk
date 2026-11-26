@@ -1,4 +1,4 @@
-"""City rank as a discovery signal — DataForSEO organic + local pack + Maps.
+"""City rank as a discovery signal: DataForSEO organic + local pack + Maps.
 
 Fixtures follow the response shapes documented at docs.dataforseo.com
 (serp/google/organic/live/advanced, serp/google/maps/live/advanced). Nothing
@@ -13,11 +13,11 @@ import httpx
 import pytest
 import pytest_asyncio
 
-from sellbird.collectors import discover as D
-from sellbird.config import EnvConfig, load_config
-from sellbird.models import Company
-from sellbird.signals import SIGNAL_CATALOG, seed_signal_catalog
-from sellbird.state import StateManager
+from sellhawk.collectors import discover as D
+from sellhawk.config import EnvConfig, load_config
+from sellhawk.models import Company
+from sellhawk.signals import SIGNAL_CATALOG, seed_signal_catalog
+from sellhawk.state import StateManager
 
 ENV = {"dataforseo_login": "u", "dataforseo_password": "p"}
 REAL_CLIENT = httpx.AsyncClient
@@ -298,7 +298,7 @@ def _install(monkeypatch, handler):
     real = REAL_CLIENT
     monkeypatch.setattr(D.httpx, "AsyncClient", lambda **kw: real(
         transport=httpx.MockTransport(handler), **kw))
-    monkeypatch.setattr("sellbird.config.load_env", lambda: EnvConfig(
+    monkeypatch.setattr("sellhawk.config.load_env", lambda: EnvConfig(
         dataforseo_login="dummy", dataforseo_password="dummy"))
 
 

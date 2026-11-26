@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
-    SELLBIRD_HOME=/app
+    SELLHAWK_HOME=/app
 
 # System deps (curl needed for the Claude CLI installer)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Python deps first (cached layer — rebuilds only when requirements change),
+# Python deps first (cached layer: rebuilds only when requirements change),
 # then Chromium + its system libraries in the same layer cleanup pass.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt \
@@ -21,31 +21,31 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && rm -rf /var/lib/apt/lists/* /root/.cache
 
 # Match the checkout owner on Linux; remain non-root.
-ARG SELLBIRD_UID=1000
-ARG SELLBIRD_GID=1000
-RUN test "$SELLBIRD_UID" -gt 0 && test "$SELLBIRD_GID" -gt 0 \
-    && groupadd --gid "$SELLBIRD_GID" sellbird \
-    && useradd --create-home --uid "$SELLBIRD_UID" --gid "$SELLBIRD_GID" sellbird \
+ARG SELLHAWK_UID=1000
+ARG SELLHAWK_GID=1000
+RUN test "$SELLHAWK_UID" -gt 0 && test "$SELLHAWK_GID" -gt 0 \
+    && groupadd --gid "$SELLHAWK_GID" sellhawk \
+    && useradd --create-home --uid "$SELLHAWK_UID" --gid "$SELLHAWK_GID" sellhawk \
     && mkdir -p /app/data \
-    && chown -R sellbird:sellbird /app /ms-playwright
+    && chown -R sellhawk:sellhawk /app /ms-playwright
 
 # Copy project (config/prompts are typically bind-mounted over these at runtime)
-COPY --chown=sellbird:sellbird sellbird/ sellbird/
-COPY --chown=sellbird:sellbird prompts/ prompts/
-COPY --chown=sellbird:sellbird skills/ skills/
-COPY --chown=sellbird:sellbird sellbird.yaml .
+COPY --chown=sellhawk:sellhawk sellhawk/ sellhawk/
+COPY --chown=sellhawk:sellhawk prompts/ prompts/
+COPY --chown=sellhawk:sellhawk skills/ skills/
+COPY --chown=sellhawk:sellhawk sellhawk.yaml .
 
-USER sellbird
-ENV PATH="/home/sellbird/.local/bin:${PATH}"
+USER sellhawk
+ENV PATH="/home/sellhawk/.local/bin:${PATH}"
 
 # Claude Code CLI, installed as the runtime user so ~/.local/bin is correct.
 # Download separately so fetch failures cannot be hidden by a shell pipeline.
-# Fail the build if installation or Sellbird's CLI isolation check fails.
+# Fail the build if installation or Sellhawk's CLI isolation check fails.
 RUN installer="$(mktemp)" \
     && curl -fsSL https://claude.ai/install.sh -o "$installer" \
     && bash "$installer" \
     && rm "$installer" \
-    && python -c "from sellbird.claude_runtime import check_cli; print(check_cli())"
+    && python -c "from sellhawk.claude_runtime import check_cli; print(check_cli())"
 
 # Healthy = the dashboard is accepting connections on its loopback port. The
 # heartbeat loop is started from the dashboard on demand, so database activity
@@ -55,6 +55,6 @@ HEALTHCHECK --interval=1m --timeout=10s --start-period=1m --retries=3 \
 
 # WebUI first: `docker run` serves the dashboard; it starts/stops the
 # heartbeat loop itself. Any arguments replace the default command, so
-# `docker compose run --rm sellbird setup` runs the setup wizard.
-ENTRYPOINT ["python", "-m", "sellbird"]
+# `docker compose run --rm sellhawk setup` runs the setup wizard.
+ENTRYPOINT ["python", "-m", "sellhawk"]
 CMD ["dashboard"]

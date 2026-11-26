@@ -1,6 +1,6 @@
 # Events and webhooks
 
-Sellbird can tell another tool the moment something happens to a person. Four
+Sellhawk can tell another tool the moment something happens to a person. Four
 events exist:
 
 | Event | When |
@@ -16,19 +16,19 @@ under **Set up → Events and webhooks**, with how each delivery went.
 
 ## Send them somewhere
 
-Add an endpoint to `sellbird.yaml` (or `sellbird.local.yaml`):
+Add an endpoint to `sellhawk.yaml` (or `sellhawk.local.yaml`):
 
 ```yaml
 webhooks:
-  - url: https://hooks.example.com/sellbird
-    secret_env: SELLBIRD_WEBHOOK_SECRET
+  - url: https://hooks.example.com/sellhawk
+    secret_env: SELLHAWK_WEBHOOK_SECRET
     events: [reply.received, meeting.booked]   # leave out for all four
 ```
 
 and put a long random value in `.env`:
 
 ```
-SELLBIRD_WEBHOOK_SECRET=change-me-to-something-long-and-random
+SELLHAWK_WEBHOOK_SECRET=change-me-to-something-long-and-random
 ```
 
 Rules: the address must be `https://` (plain `http://` is allowed only for
@@ -62,13 +62,13 @@ A `POST` with a JSON body:
 `starts_at`, which may be null) and `emails_cancelled`; `lead.created` adds
 `found_via`.
 
-Headers: `Sellbird-Event` (the type), `Sellbird-Delivery` (the event id, the
-same on every retry, so use it to ignore duplicates) and `Sellbird-Signature`.
+Headers: `Sellhawk-Event` (the type), `Sellhawk-Delivery` (the event id, the
+same on every retry, so use it to ignore duplicates) and `Sellhawk-Signature`.
 
 ## Check the signature
 
 ```
-Sellbird-Signature: t=1767225600,v1=5257a869e7ec...
+Sellhawk-Signature: t=1767225600,v1=5257a869e7ec...
 ```
 
 `v1` is the HMAC-SHA256, in hex, of the timestamp, a dot, and the raw request
@@ -76,8 +76,8 @@ body, keyed with your secret. Recompute it, compare in constant time, and
 refuse a timestamp more than five minutes old.
 
 ```python
-from sellbird.events import verify_signature
-ok = verify_signature(secret, raw_body_bytes, request.headers["Sellbird-Signature"])
+from sellhawk.events import verify_signature
+ok = verify_signature(secret, raw_body_bytes, request.headers["Sellhawk-Signature"])
 ```
 
 ## Delivery

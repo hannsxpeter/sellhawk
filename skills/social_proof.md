@@ -12,7 +12,7 @@ A customer said something good. Quote it, exactly, and say what the job was.
 
 - The words must be the customer's, copied exactly. Never tidy, shorten in a way that changes the meaning, or write one yourself.
 - The user must tell you the customer agreed to be quoted, and how they want to be named (full name, first name and town, or the business name).
-- A good place to find one: replies in Sellbird, and mentions marked as praise. Ask the user to get permission before you draft.
+- A good place to find one: replies in Sellhawk, and mentions marked as praise. Ask the user to get permission before you draft.
 
 ## Shape
 

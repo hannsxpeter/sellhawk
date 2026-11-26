@@ -5,11 +5,11 @@ import asyncio
 import pytest
 from fastapi.testclient import TestClient
 
-import sellbird.dashboard as dash
-from sellbird import inbox_routes
-from sellbird.dashboard_auth import load_or_create_token
-from sellbird.mailboxes import MailboxStore
-from sellbird.models.campaign import Campaign, EmailStep
+import sellhawk.dashboard as dash
+from sellhawk import inbox_routes
+from sellhawk.dashboard_auth import load_or_create_token
+from sellhawk.mailboxes import MailboxStore
+from sellhawk.models.campaign import Campaign, EmailStep
 
 from tests.test_mailboxes import add_inbox, boxes  # noqa: F401  (boxes is a fixture)
 from tests.test_outbox_native import Cfg, Env
@@ -20,7 +20,7 @@ ORIGIN = "http://127.0.0.1:5555"
 @pytest.fixture
 def env(tmp_path, monkeypatch, boxes):  # noqa: F811
     (tmp_path / "data").mkdir()
-    db = tmp_path / "data" / "sellbird.db"
+    db = tmp_path / "data" / "sellhawk.db"
     monkeypatch.setattr(dash, "ENV_FILE", tmp_path / ".env")
     monkeypatch.setattr(dash, "DB_PATH", db)
     dash.token_store.configure(tmp_path / "data" / "dashboard-token")
@@ -109,7 +109,7 @@ def test_a_campaign_picks_its_inboxes(env):
 def test_the_mcp_tools_list_and_pause_with_the_agents_token(env, tmp_path):
     import json
     import httpx
-    from sellbird import dashboard_instance, mcp_server
+    from sellhawk import dashboard_instance, mcp_server
 
     data = tmp_path / "data"
     dashboard_instance.write(data, host="127.0.0.1", port=5555, instance=dash.INSTANCE_ID)
@@ -130,7 +130,7 @@ def test_the_mcp_tools_list_and_pause_with_the_agents_token(env, tmp_path):
 
 @pytest.fixture
 def keychain(monkeypatch):
-    from sellbird.secrets import MemorySecretBackend, SecretStore
+    from sellhawk.secrets import MemorySecretBackend, SecretStore
     backend = MemorySecretBackend()
     store = SecretStore(backend=backend)
     monkeypatch.setattr(inbox_routes, "_secrets", lambda: store)

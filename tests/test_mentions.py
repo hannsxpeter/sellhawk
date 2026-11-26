@@ -7,8 +7,8 @@ from datetime import datetime, timedelta, timezone
 import httpx
 import pytest
 
-from sellbird import agent_policy, mentions
-from sellbird.config import MentionsConfig
+from sellhawk import agent_policy, mentions
+from sellhawk.config import MentionsConfig
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 from tests.test_outbox_native import state  # noqa: F401  (fixture)
 from tests.test_suite_screens import agent, run  # noqa: F401  (fixture)
@@ -207,7 +207,7 @@ def test_the_agent_proposes_sorts_and_drafts_but_the_switches_are_yours(client, 
 
 
 def _state_of(client):  # noqa: F811
-    from sellbird.state import StateManager
+    from sellhawk.state import StateManager
     return StateManager(str(client.db_path))
 
 
@@ -230,7 +230,7 @@ def test_a_check_is_refused_with_nothing_watched_and_within_half_an_hour(client,
 
 @pytest.mark.asyncio
 async def test_the_mcp_tools_reach_the_mention_routes():
-    from sellbird import mcp_server
+    from sellhawk import mcp_server
     calls = []
 
     class Client:

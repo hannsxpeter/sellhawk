@@ -7,11 +7,11 @@ import tempfile
 import pytest
 import pytest_asyncio
 
-from sellbird.collectors.profile import ProfileCollector, title_looks_like_role, _strip_code
-from sellbird.models.company import Company
-from sellbird.models.prospect import Prospect
-from sellbird.signals import SIGNAL_CATALOG, seed_signal_catalog
-from sellbird.state import StateManager
+from sellhawk.collectors.profile import ProfileCollector, title_looks_like_role, _strip_code
+from sellhawk.models.company import Company
+from sellhawk.models.prospect import Prospect
+from sellhawk.signals import SIGNAL_CATALOG, seed_signal_catalog
+from sellhawk.state import StateManager
 
 
 @pytest_asyncio.fixture
@@ -90,12 +90,12 @@ def test_page_titles_are_not_people():
 
 
 def test_feature_lists_are_not_people():
-    """Bold lead-ins on a services page: "<strong>HOA Boards</strong> — ..."."""
-    html = """<ul><li><strong>HOA Boards</strong> — Desiring consistent oversight and
+    """Bold lead-ins on a services page: "<strong>HOA Boards</strong> \u2014 ..."."""
+    html = """<ul><li><strong>HOA Boards</strong> \u2014 Desiring consistent oversight and
                   a trusted management partner dedicated to accountability.</li>
-              <li><strong>Scope Alignment</strong> — Service levels are defined
+              <li><strong>Scope Alignment</strong> \u2014 Service levels are defined
                   clearly before engagement begins.</li>
-              <li><strong>Process-Driven Consistency</strong> — Structured workflows
+              <li><strong>Process-Driven Consistency</strong> \u2014 Structured workflows
                   for every community.</li></ul>"""
     assert collector().detect_people(html) == []
 
@@ -144,8 +144,8 @@ def test_tech_and_ads_detection():
               <link href="/wp-content/themes/x.css">
               <script src="https://connect.facebook.net/en_US/fbevents.js"></script>"""
     assert "WordPress" in c.detect_tech(html)
-    assert c._any(html, __import__("sellbird.collectors.profile", fromlist=["GOOGLE_ADS"]).GOOGLE_ADS)
-    assert c._any(html, __import__("sellbird.collectors.profile", fromlist=["META_PIXEL"]).META_PIXEL)
+    assert c._any(html, __import__("sellhawk.collectors.profile", fromlist=["GOOGLE_ADS"]).GOOGLE_ADS)
+    assert c._any(html, __import__("sellhawk.collectors.profile", fromlist=["META_PIXEL"]).META_PIXEL)
 
 
 def test_clean_page_has_no_false_tech():
@@ -254,7 +254,7 @@ async def test_profile_repairs_weak_names_and_retains_brands(
         return None
 
     monkeypatch.setattr(ProfileCollector, "_resolve_site", fake_resolve)
-    monkeypatch.setattr("sellbird.collectors.profile.asyncio.sleep", no_sleep)
+    monkeypatch.setattr("sellhawk.collectors.profile.asyncio.sleep", no_sleep)
     async with ProfileCollector(state, set()) as c:
         await c.run([{"id": cid, "name": current, "domain": domain}])
     import sqlite3
@@ -268,7 +268,7 @@ async def test_profile_repairs_weak_names_and_retains_brands(
 @pytest.mark.parametrize("use_fallback", [False, True])
 async def test_profile_uses_homepage_brand_over_service_location_title(
         state, monkeypatch, industry, use_fallback):
-    from sellbird.collectors.discover import name_from_domain
+    from sellhawk.collectors.discover import name_from_domain
     domain = f"kettleman{industry.lower()}.com"
     brand = f"Kettleman {industry}"
     label = f"{industry} Services in Denver"
@@ -284,7 +284,7 @@ async def test_profile_uses_homepage_brand_over_service_location_title(
         return None
 
     monkeypatch.setattr(ProfileCollector, "_resolve_site", fake_resolve)
-    monkeypatch.setattr("sellbird.collectors.profile.asyncio.sleep", no_sleep)
+    monkeypatch.setattr("sellhawk.collectors.profile.asyncio.sleep", no_sleep)
     async with ProfileCollector(state, set()) as c:
         await c.run([{"id": cid, "name": current, "domain": domain}])
     assert (await state.get_company_by_domain(domain)).name == brand

@@ -10,10 +10,10 @@ from pathlib import Path
 
 import pytest
 
-from sellbird import claude_runtime
-from sellbird.claude_runtime import find_claude as real_find_claude  # conftest stubs it
+from sellhawk import claude_runtime
+from sellhawk.claude_runtime import find_claude as real_find_claude  # conftest stubs it
 
-SELLBIRD = Path(__file__).resolve().parent.parent / "sellbird"
+SELLHAWK = Path(__file__).resolve().parent.parent / "sellhawk"
 
 
 def _text_io_without_encoding(tree):
@@ -39,32 +39,32 @@ def _text_io_without_encoding(tree):
 
 
 def test_every_text_file_is_read_and_written_as_utf8():
-    # Windows defaults to the locale code page (cp1252): sellbird train
+    # Windows defaults to the locale code page (cp1252): sellhawk train
     # crashed on "★" and prompts came out garbled.
     offenders = [
-        f"{path.relative_to(SELLBIRD.parent)}:{line}"
-        for path in sorted(SELLBIRD.rglob("*.py"))
+        f"{path.relative_to(SELLHAWK.parent)}:{line}"
+        for path in sorted(SELLHAWK.rglob("*.py"))
         for line in _text_io_without_encoding(ast.parse(path.read_text(encoding="utf-8")))
     ]
     assert offenders == []
 
 
 def test_config_and_prompts_with_non_ascii_text_load(tmp_path, monkeypatch):
-    from sellbird.brain import Brain
-    import sellbird.brain as brain_mod
-    from sellbird.config import load_config
+    from sellhawk.brain import Brain
+    import sellhawk.brain as brain_mod
+    from sellhawk.config import load_config
 
     import yaml
-    data = yaml.safe_load((SELLBIRD.parent / "sellbird.yaml").read_text(encoding="utf-8"))
-    data["persona"]["company"] = "Acme — Studio ★"
-    config = tmp_path / "sellbird.yaml"
+    data = yaml.safe_load((SELLHAWK.parent / "sellhawk.yaml").read_text(encoding="utf-8"))
+    data["persona"]["company"] = "Acme \u2014 Studio ★"  # check-style: allow
+    config = tmp_path / "sellhawk.yaml"
     config.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
     loaded = load_config(str(config))
-    assert loaded.persona.company == "Acme — Studio ★"
+    assert loaded.persona.company == "Acme \u2014 Studio ★"  # check-style: allow
 
-    (tmp_path / "x.md").write_text("Rules ★ — {{name}}", encoding="utf-8")
+    (tmp_path / "x.md").write_text("Rules ★ \u2014 {{name}}", encoding="utf-8")  # check-style: allow
     monkeypatch.setattr(brain_mod, "PROMPTS_DIR", tmp_path)
-    assert Brain.load_prompt(object.__new__(Brain), "x", name="Zoë") == "Rules ★ — Zoë"
+    assert Brain.load_prompt(object.__new__(Brain), "x", name="Zoë") == "Rules ★ \u2014 Zoë"  # check-style: allow
 
 
 # ── Finding the Claude CLI on Windows ──
@@ -146,9 +146,9 @@ def test_not_installed_is_still_none(monkeypatch):
 # ── Console output ──
 
 def test_cli_output_never_crashes_on_a_legacy_code_page():
-    # The dashboard runs `sellbird run` with output going to a log file, which
+    # The dashboard runs `sellhawk run` with output going to a log file, which
     # Windows opens in cp1252: "⚠" or "→" in a message would crash print().
-    from sellbird.textio import utf8_stdio
+    from sellhawk.textio import utf8_stdio
     raw = io.BytesIO()
     stream = io.TextIOWrapper(raw, encoding="cp1252")
     utf8_stdio(stream)
@@ -169,8 +169,8 @@ def test_installing_the_missing_executable_changes_the_fingerprint(tmp_path, mon
 
 
 def test_files_saved_in_the_old_windows_code_page_still_load(tmp_path, caplog):
-    # Before this fix, Sellbird on Windows saved trained skills as cp1252.
-    from sellbird.textio import read_user_text
+    # Before this fix, Sellhawk on Windows saved trained skills as cp1252.
+    from sellhawk.textio import read_user_text
     old = tmp_path / "product_knowledge.md"
     old.write_bytes("We\u2019re a caf\u00e9 \u2014 fast.".encode("cp1252"))
     text = read_user_text(old)
@@ -183,10 +183,10 @@ def test_files_saved_in_the_old_windows_code_page_still_load(tmp_path, caplog):
 
 def test_a_cp1252_config_loads(tmp_path):
     import yaml
-    from sellbird.config import load_config
-    data = yaml.safe_load((SELLBIRD.parent / "sellbird.yaml").read_text(encoding="utf-8"))
+    from sellhawk.config import load_config
+    data = yaml.safe_load((SELLHAWK.parent / "sellhawk.yaml").read_text(encoding="utf-8"))
     data["persona"]["company"] = "Caf\u00e9 \u2014 Studio"
-    config = tmp_path / "sellbird.yaml"
+    config = tmp_path / "sellhawk.yaml"
     config.write_bytes(yaml.safe_dump(data, allow_unicode=True).encode("cp1252"))
     company = load_config(str(config)).persona.company
     import locale
@@ -233,7 +233,7 @@ def test_a_shim_pointing_to_another_drive(tmp_path):
 
 
 def test_windows_line_endings_read_as_newlines(tmp_path):
-    from sellbird.textio import read_user_text
+    from sellhawk.textio import read_user_text
     f = tmp_path / "skill.md"
     f.write_bytes(b"# Humanizer\r\nCut the tells.\r\n")
     assert read_user_text(f) == "# Humanizer\nCut the tells.\n"

@@ -1,6 +1,6 @@
 # Lead Qualification Skills
 
-Sellbird uses a hybrid qualification approach: BANT for initial screening, enhanced with ICP scoring for prioritization.
+Sellhawk uses a hybrid qualification approach: BANT for initial screening, enhanced with ICP scoring for prioritization.
 
 ---
 
@@ -15,7 +15,7 @@ Sellbird uses a hybrid qualification approach: BANT for initial screening, enhan
 ### Authority
 - Is this person a decision-maker or influencer?
 - Decision-maker titles: VP, Director, Head of, C-suite, Founder
-- Influencer titles: Manager, Lead, Senior — can champion internally
+- Influencer titles: Manager, Lead, Senior, can champion internally
 - If not the authority: ask for the right person (don't waste sequences)
 
 ### Need
@@ -26,7 +26,7 @@ Sellbird uses a hybrid qualification approach: BANT for initial screening, enhan
 ### Timeline
 - Are they likely to buy soon?
 - Signals: active evaluation (G2/Capterra reviews), recent vendor changes
-- "Not now" is okay — schedule a future touchpoint
+- "Not now" is okay, schedule a future touchpoint
 
 ---
 
@@ -42,16 +42,16 @@ Score every prospect 1-10 before outreach:
 | **Reachability** | 0-2 | Verified email = 2, LinkedIn only = 1, no contact = 0 |
 
 ### Priority Tiers
-- **Score 8-10**: High priority — personalized outreach immediately
-- **Score 5-7**: Medium priority — include in batch campaigns
-- **Score 3-4**: Low priority — only if pipeline needs volume
-- **Score 1-2**: Skip — not worth the outreach
+- **Score 8-10**: High priority, personalized outreach immediately
+- **Score 5-7**: Medium priority, include in batch campaigns
+- **Score 3-4**: Low priority, only if pipeline needs volume
+- **Score 1-2**: Skip, not worth the outreach
 
 ---
 
-## MEDDIC (For Complex Deals — Future Use)
+## MEDDIC (For Complex Deals: Future Use)
 
-When Sellbird handles enterprise prospects or multi-stakeholder deals:
+When Sellhawk handles enterprise prospects or multi-stakeholder deals:
 
 - **Metrics**: What quantifiable outcomes does the buyer care about?
 - **Economic Buyer**: Who controls the budget?
@@ -64,7 +64,7 @@ When Sellbird handles enterprise prospects or multi-stakeholder deals:
 
 ## Disqualification Signals
 
-Sellbird should NOT pursue prospects who:
+Sellhawk should NOT pursue prospects who:
 - Have fewer employees than the minimum ICP threshold
 - Are in a completely unrelated industry
 - Have no discoverable contact information

@@ -1,12 +1,12 @@
 # Texting and the consent check
 
-Sellbird can send texts through **your own Twilio account**, and it has one
+Sellhawk can send texts through **your own Twilio account**, and it has one
 check, in code, that every text and every call has to pass first. Texting is
 off until you turn it on. The check has no off switch.
 
 ## The consent check
 
-`sellbird/consent.py` answers one question: may we contact this number, on
+`sellhawk/consent.py` answers one question: may we contact this number, on
 this channel (`sms` or `call`), right now? The answer is no unless all of
 these hold:
 
@@ -18,7 +18,7 @@ these hold:
    to texts is not a yes to calls. With no stored yes there is no first text,
    ever.
 4. **It is not quiet hours for them.** 21:00 to 08:00 by default, on their
-   clock when Sellbird knows their time zone and on yours when it does not.
+   clock when Sellhawk knows their time zone and on yours when it does not.
    Quiet hours only delay: the text goes when they end.
 
 The check runs at the moment of sending, so a STOP that arrives after you
@@ -30,13 +30,13 @@ answer. Record one in the dashboard under **Set up → Texting and consent**,
 with a sentence saying how they agreed ("Ticked the box on the quote form on
 March 3"). Your agent cannot record a yes.
 
-Sellbird has no calling feature. The check covers calls so that anything
+Sellhawk has no calling feature. The check covers calls so that anything
 built on top of the engine uses the same gate: ask it with
 `POST /api/consent/check` or the `consent_check` MCP tool.
 
 ## Connect Twilio
 
-Sellbird registers no numbers of its own. Use the Twilio account that already
+Sellhawk registers no numbers of its own. Use the Twilio account that already
 has your number and its carrier registration (A2P 10DLC in the US). In `.env`:
 
 ```
@@ -47,7 +47,7 @@ TWILIO_FROM_NUMBER=+13035550100
 # TWILIO_MESSAGING_SERVICE_SID=MG...
 ```
 
-Then in `sellbird.yaml` (or `sellbird.local.yaml`):
+Then in `sellhawk.yaml` (or `sellhawk.local.yaml`):
 
 ```yaml
 texting:
@@ -73,7 +73,7 @@ calls, and cancels anything queued. Only the person can undo that. When
 `reply_to_inbound` is on, a first message from a new number is kept as the
 record that lets you answer them by text; it is never a yes to calls.
 
-## What Sellbird does not do
+## What Sellhawk does not do
 
 It does not buy or register numbers, does not place calls, does not send a
 text nobody approved, and does not text a list. Whether your use of texting

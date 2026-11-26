@@ -7,8 +7,8 @@ import logging
 import pytest
 from fastapi.testclient import TestClient
 
-import sellbird.dashboard as dash
-from sellbird import dashboard_auth as auth, mcp_cards
+import sellhawk.dashboard as dash
+from sellhawk import dashboard_auth as auth, mcp_cards
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 from tests.test_suite_screens import agent  # noqa: F401  (fixture)
 
@@ -145,7 +145,7 @@ def test_page_names_map_to_screens():
 
 @pytest.mark.asyncio
 async def test_the_card_tools_carry_a_ui_resource_and_plain_text():
-    from sellbird import mcp_server
+    from sellhawk import mcp_server
     server = mcp_server.build_server(lambda: None)
     tools = {t.name: t for t in await server.list_tools()}
     for name, key in (("show_today", "today"), ("show_needs_you", "needs_you"), ("show_campaign_report", "campaign")):
@@ -170,7 +170,7 @@ async def test_the_card_tools_carry_a_ui_resource_and_plain_text():
 
 @pytest.mark.asyncio
 async def test_a_card_carries_a_pass_that_only_navigates(client, agent, monkeypatch):  # noqa: F811
-    from sellbird import mcp_server
+    from sellhawk import mcp_server
     monkeypatch.setattr(dash, "_card_passes", dash._CardPasses())
 
     class Client:
@@ -268,7 +268,7 @@ def test_the_page_swaps_the_code_before_its_first_request(outcome):
 # ── Connect buttons (Set up, Your agent) ──
 
 def test_connect_buttons_are_yours_alone_not_a_pane_or_the_agent(client, agent, monkeypatch):  # noqa: F811
-    from sellbird import connect
+    from sellhawk import connect
     calls = []
     monkeypatch.setattr(connect, "agent_states", lambda: [{"agent": "claude-desktop"}])
     monkeypatch.setattr(connect, "apply_one",
@@ -336,10 +336,10 @@ def test_a_pane_cannot_resume_sending_but_can_pause(client, agent):  # noqa: F81
 
 def test_a_pane_cannot_turn_on_autopilot_but_can_go_back_to_approval(client, agent, tmp_path, monkeypatch):  # noqa: F811
     import shutil
-    from sellbird.config import load_config
-    from sellbird.paths import PROJECT_ROOT
-    cfg = tmp_path / "sellbird.yaml"
-    shutil.copy(PROJECT_ROOT / "sellbird.yaml", cfg)
+    from sellhawk.config import load_config
+    from sellhawk.paths import PROJECT_ROOT
+    cfg = tmp_path / "sellhawk.yaml"
+    shutil.copy(PROJECT_ROOT / "sellhawk.yaml", cfg)
     assert load_config(str(cfg)).channels.email.require_approval
     monkeypatch.setattr(dash, "_resolve_config_file", lambda: cfg)
     h = _pane_headers(agent)
@@ -401,7 +401,7 @@ def test_the_waiting_card_speaks_plainly():
         {"waiting": []}, {"pending": []})
     titles = [i["title"] for i in needs["items"]]
     assert titles[0] == "Pat Example needs a reply from you"
-    assert needs["items"][0]["detail"].startswith("Sellbird handed it to you: it needs a person to answer.")
+    assert needs["items"][0]["detail"].startswith("Sellhawk handed it to you: it needs a person to answer.")
     assert "(" not in needs["items"][1]["detail"] and "something_new" not in json.dumps(needs)   # no raw codes
     assert titles[2:] == ["New lead from your site form", "New lead from Quote request", "New lead: +15550100"]
     assert needs["only_you"] is True and not any(i.get("decision") for i in needs["items"])    # once, on the header

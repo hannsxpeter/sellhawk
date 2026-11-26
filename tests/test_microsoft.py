@@ -8,8 +8,8 @@ import os
 import httpx
 import pytest
 
-from sellbird.integrations import microsoft
-from sellbird.integrations.microsoft import GraphError, MicrosoftProvider
+from sellhawk.integrations import microsoft
+from sellhawk.integrations.microsoft import GraphError, MicrosoftProvider
 
 
 class Env:
@@ -18,7 +18,7 @@ class Env:
 
 
 class Graph:
-    """A tiny fake of the Graph + login endpoints Sellbird uses."""
+    """A tiny fake of the Graph + login endpoints Sellhawk uses."""
 
     def __init__(self):
         self.requests = []
@@ -68,7 +68,7 @@ class Graph:
 
     def _inbox_page(self, request):
         """Pages like Graph: $top per page, then an opaque nextLink whose
-        query carries only $skip (and a token) — not the first page's params."""
+        query carries only $skip (and a token), not the first page's params."""
         params = request.url.params
         top = int(params.get("$top") or params.get("t") or 50)
         skip = int(params.get("$skip", 0))
@@ -197,7 +197,7 @@ async def test_a_send_that_may_have_gone_out_keeps_the_draft(graph):
 
 def signed_config(logo):
     from types import SimpleNamespace
-    from sellbird.config import SignatureConfig
+    from sellhawk.config import SignatureConfig
     return SimpleNamespace(
         persona=SimpleNamespace(email="owner@sender.example", company="Acme"),
         channels=SimpleNamespace(email=SimpleNamespace(
@@ -307,7 +307,7 @@ async def test_not_authorized_raises(graph):
     microsoft.TOKEN_FILE.unlink()
     p = provider(graph)
     assert not p.is_configured()
-    with pytest.raises(GraphError, match="sellbird microsoft auth"):
+    with pytest.raises(GraphError, match="sellhawk microsoft auth"):
         await p.get_replies()
 
 
@@ -315,8 +315,8 @@ async def test_not_authorized_raises(graph):
 async def test_handler_holds_sends_when_graph_is_down(graph, tmp_path):
     """End to end with the handler: a Graph outage is a failed read."""
     import os
-    from sellbird.agents.handler import Handler
-    from sellbird.state import StateManager
+    from sellhawk.agents.handler import Handler
+    from sellhawk.state import StateManager
     from tests.test_outbox_native import Cfg, StubBrain
 
     class E(Env):
@@ -332,7 +332,7 @@ async def test_handler_holds_sends_when_graph_is_down(graph, tmp_path):
 
 
 def test_registry_builds_the_microsoft_provider():
-    from sellbird.integrations.mail_provider import NATIVE_PROVIDERS, get_mail_provider
+    from sellhawk.integrations.mail_provider import NATIVE_PROVIDERS, get_mail_provider
     from tests.test_outbox_native import Cfg
 
     class MsCfg(Cfg):
@@ -611,7 +611,7 @@ async def test_malformed_identity_response_raises(graph):
 
 async def _handler_with_prospect(tmp_path, graph):
     import os
-    from sellbird.state import StateManager
+    from sellhawk.state import StateManager
     from tests.test_outbox_native import _now_iso, make_handler, seed_prospect
 
     state = StateManager(os.path.join(tmp_path, "t.db"))

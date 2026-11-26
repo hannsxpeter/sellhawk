@@ -1,6 +1,6 @@
 """The Outbox review desk: the facts behind each draft, and editing it.
 
-Reviewing a cold email means checking its claims against what Sellbird actually
+Reviewing a cold email means checking its claims against what Sellhawk actually
 found. The desk shows that next to the draft, and lets a reviewer fix a draft
 that is nearly right instead of throwing the lead away.
 """
@@ -14,21 +14,21 @@ import aiosqlite
 import pytest
 from fastapi.testclient import TestClient
 
-import sellbird.dashboard as dash
-from sellbird.config import DEFAULT_OPT_OUT_LINE as LINE
-from sellbird.models import Company
-from sellbird.models.campaign import Campaign
-from sellbird.models.prospect import Prospect
-from sellbird.signals import seed_signal_catalog
-from sellbird.state import StateManager
+import sellhawk.dashboard as dash
+from sellhawk.config import DEFAULT_OPT_OUT_LINE as LINE
+from sellhawk.models import Company
+from sellhawk.models.campaign import Campaign
+from sellhawk.models.prospect import Prospect
+from sellhawk.signals import seed_signal_catalog
+from sellhawk.state import StateManager
 
 
 @pytest.fixture
 def client(monkeypatch):
     with tempfile.TemporaryDirectory() as tmp:
-        db = Path(tmp) / "sellbird.db"
+        db = Path(tmp) / "sellhawk.db"
         monkeypatch.setattr(dash, "DB_PATH", db)
-        monkeypatch.setattr(dash, "WEB_DIR", Path(__file__).resolve().parent.parent / "sellbird" / "web")
+        monkeypatch.setattr(dash, "WEB_DIR", Path(__file__).resolve().parent.parent / "sellhawk" / "web")
         dash.token_store.configure(Path(tmp) / "data" / "dashboard-token")
         token = dash.token_store.get()
         with TestClient(dash.app, base_url="http://127.0.0.1:5555",

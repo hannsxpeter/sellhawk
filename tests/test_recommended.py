@@ -5,13 +5,13 @@ import re
 
 import pytest
 
-from sellbird import recommended as rec
-from sellbird.integrations import trulyinbox as ti
-from sellbird.paths import PROJECT_ROOT
+from sellhawk import recommended as rec
+from sellhawk.integrations import trulyinbox as ti
+from sellhawk.paths import PROJECT_ROOT
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 from tests.test_suite_screens import agent  # noqa: F401  (fixture)
 
-DOCS = ("README.md", "CLAUDE.md", ".env.example")
+DOCS = ("README.md", "AGENTS.md", ".env.example")
 
 
 def _text(name):
@@ -30,12 +30,11 @@ def test_each_job_has_one_service_and_every_service_a_web_link():
 
 
 def test_only_a_real_affiliate_link_is_called_one():
-    assert rec.affiliates() == ["TrulyInbox"]
-    assert rec.tag("trulyinbox") == "(affiliate link)" and rec.tag("hunter") == ""
-    assert rec.tag_for_url(rec.link("trulyinbox")) == "(affiliate link)"
+    assert rec.affiliates() == []
+    assert rec.tag("trulyinbox") == "" and rec.tag("hunter") == ""
+    assert rec.tag_for_url(rec.link("trulyinbox")) == ""
     assert rec.tag_for_url(rec.link("dataforseo")) == ""
-    assert rec.DISCLOSURE == ("TrulyInbox links in this project are affiliate links: the maintainer may "
-                              "earn a commission, at no extra cost to you.")
+    assert rec.DISCLOSURE == ""
 
 
 def test_the_disclosure_names_every_affiliate(monkeypatch):
@@ -43,13 +42,13 @@ def test_the_disclosure_names_every_affiliate(monkeypatch):
     services["hunter"] = rec.Service("Hunter", "https://hunter.io/?ref=example", affiliate=True)
     services["dataforseo"] = rec.Service("DataForSEO", "https://dataforseo.com/?ref=example", affiliate=True)
     monkeypatch.setattr(rec, "SERVICES", services)
-    assert rec.disclosure().startswith("TrulyInbox, Hunter and DataForSEO links in this project are affiliate links")
+    assert rec.disclosure().startswith("Hunter and DataForSEO links in this project are affiliate links")
     monkeypatch.setattr(rec, "SERVICES", {"reoon": rec.SERVICES["reoon"]})
     assert rec.disclosure() == ""
 
 
 def test_trulyinbox_and_discovery_take_their_links_from_here():
-    from sellbird.collectors.discover import provider_menu
+    from sellhawk.collectors.discover import provider_menu
     assert ti.AFFILIATE_URL == rec.link("trulyinbox") and ti.AFFILIATE_TAG == rec.AFFILIATE_TAG
     menu = {m["key"]: m for m in provider_menu({})}
     dfs = [m for k, m in menu.items() if k.startswith("dataforseo")]
@@ -58,7 +57,7 @@ def test_trulyinbox_and_discovery_take_their_links_from_here():
 
 
 def test_no_source_file_but_this_one_spells_out_a_link():
-    src = [p for p in (PROJECT_ROOT / "sellbird").rglob("*") if p.suffix in (".py", ".js", ".html")]
+    src = [p for p in (PROJECT_ROOT / "sellhawk").rglob("*") if p.suffix in (".py", ".js", ".html")]
     for service in rec.SERVICES.values():
         holders = [p.name for p in src if service.url in p.read_text(encoding="utf-8")]
         assert holders == ["recommended.py"], (service.name, holders)
@@ -67,8 +66,8 @@ def test_no_source_file_but_this_one_spells_out_a_link():
 @pytest.mark.parametrize("name", DOCS)
 def test_the_docs_carry_the_current_links_and_the_disclosure(name):
     text = _text(name)
-    # CLAUDE.md is the agent's guidance: it tells the agent to say so itself, in chat.
-    if rec.DISCLOSURE and name != "CLAUDE.md":
+    # AGENTS.md is the agent's guidance: it tells the agent to say so itself, in chat.
+    if rec.DISCLOSURE and name != "AGENTS.md":
         assert rec.DISCLOSURE in text, name
     for key, service in rec.SERVICES.items():
         domain = re.sub(r"^https://(www\.|app\.)?", "", service.url).split("/")[0]
@@ -76,14 +75,14 @@ def test_the_docs_carry_the_current_links_and_the_disclosure(name):
         if service.affiliate:
             assert text.count(domain + "/") - text.count("dev." + domain) - text.count("api." + domain) \
                 - text.count("lynx-api." + domain) == text.count(service.url), (name, key)
-    if name != "CLAUDE.md":     # CLAUDE.md sends the agent to `sellbird recommended` instead
+    if name != "AGENTS.md":     # AGENTS.md sends the agent to `sellhawk recommended` instead
         for key in ("reoon", "zerobounce", "hunter", "dataforseo"):
             assert rec.link(key) in text, (name, key)
 
 
-def test_claude_md_tells_the_agent_how_to_recommend():
-    text = _text("CLAUDE.md")
-    assert "sellbird recommended" in text and "(affiliate link)" in text
+def test_agents_md_tells_the_agent_how_to_recommend():
+    text = _text("AGENTS.md")
+    assert "sellhawk recommended" in text
     assert "one service per job" in text
 
 
@@ -108,7 +107,7 @@ def test_the_agent_can_read_the_recommendations_but_not_choose_for_you(client, a
 
 def test_the_command_prints_each_job_once(capsys):
     from types import SimpleNamespace
-    from sellbird.cli import cmd_recommended
+    from sellhawk.cli import cmd_recommended
     cmd_recommended(SimpleNamespace())
     out = capsys.readouterr().out
     for name in rec.JOBS:

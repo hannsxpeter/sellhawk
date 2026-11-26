@@ -2,7 +2,7 @@
 
 from types import SimpleNamespace
 
-from sellbird.fit import company_fit
+from sellhawk.fit import company_fit
 
 
 def config(dnc=()):
@@ -68,7 +68,7 @@ def test_careers_page_without_a_matching_role_is_a_weak_signal():
 
 
 def test_decision_maker_named_on_site_but_not_a_contact():
-    obs = [{"signal_code": "DECISION_MAKER_TITLE", "value_text": "Ravi Example — ~ Plant Head"}]
+    obs = [{"signal_code": "DECISION_MAKER_TITLE", "value_text": "Ravi Example \u2014 ~ Plant Head"}]
     score, reasons = company_fit(ACME, [], obs, config())
     assert "decision maker: Plant Head" in reasons
     assert score == 20 + 30

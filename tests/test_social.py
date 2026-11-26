@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from sellbird import agent_policy, social
+from sellhawk import agent_policy, social
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 from tests.test_outbox_native import state  # noqa: F401  (fixture)
 from tests.test_suite_screens import agent  # noqa: F401  (fixture)
@@ -130,7 +130,7 @@ def test_the_agent_drafts_and_reads_but_every_switch_and_approval_is_yours(clien
 
 @pytest.mark.asyncio
 async def test_the_mcp_tools_reach_the_social_routes():
-    from sellbird import mcp_server
+    from sellhawk import mcp_server
     calls = []
 
     class Client:

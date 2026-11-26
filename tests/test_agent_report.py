@@ -7,8 +7,8 @@ import json
 import sqlite3
 from datetime import datetime, timedelta, timezone
 
-import sellbird.dashboard as dash
-from sellbird.state import StateManager
+import sellhawk.dashboard as dash
+from sellhawk.state import StateManager
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 
 
@@ -45,7 +45,7 @@ def test_who_did_it_comes_from_the_record(client, monkeypatch):  # noqa: F811
          (_ts(1),))
     _sql(db, "INSERT INTO agent_requests (method, path, status, created_at) VALUES ('GET', '/api/today', 200, ?)",
          (_ts(0),))
-    monkeypatch.setattr(dash, "_check_sellbird_pid", lambda: None)
+    monkeypatch.setattr(dash, "_check_sellhawk_pid", lambda: None)
 
     r = client.get("/api/agent/report").json()
     kinds = [(e["who"], e["action_type"]) for e in r["log"]]
@@ -55,7 +55,7 @@ def test_who_did_it_comes_from_the_record(client, monkeypatch):  # noqa: F811
     calls = [e for e in r["log"] if e["action_type"] == "agent_call"]
     assert len(calls) == 1                                            # the lead call merged; refused and reads left out
     assert "mention" in calls[0]["details"]["what"].lower()
-    assert [e for e in r["log"] if e["action_type"] == "write_campaign"][0]["via"] == "sellbird"
+    assert [e for e in r["log"] if e["action_type"] == "write_campaign"][0]["via"] == "sellhawk"
     assert r["chip"] == "connected"                                   # its key was used this week
     assert r["log"] == sorted(r["log"], key=lambda e: e["at"], reverse=True)
 
@@ -68,12 +68,12 @@ def test_the_day_counts_and_the_chip(client, monkeypatch):  # noqa: F811
     _sql(db, "INSERT INTO prospects (id, created_at) VALUES ('old', ?)", (_ts(60 * 30),))
     _sql(db, "INSERT INTO outbox (id, status, created_at) VALUES ('o1', 'pending_review', ?)", (_ts(5),))
     _sql(db, "INSERT INTO outbox (id, status, created_at, sent_at) VALUES ('o2', 'sent', ?, ?)", (_ts(90), _ts(30)))
-    monkeypatch.setattr(dash, "_check_sellbird_pid", lambda: None)
+    monkeypatch.setattr(dash, "_check_sellhawk_pid", lambda: None)
 
     r = client.get("/api/agent/report").json()
     assert r["day"] == {"found": 3, "written": 2, "sent": 1, "pending": 1}
     assert r["chip"] == "not_connected"                               # no key used, nothing running
-    monkeypatch.setattr(dash, "_check_sellbird_pid", lambda: 4242)
+    monkeypatch.setattr(dash, "_check_sellhawk_pid", lambda: 4242)
     assert client.get("/api/agent/report").json()["chip"] == "working"
     client.post("/api/agent/access", json={"access": "off"})
     assert client.get("/api/agent/report").json()["chip"] == "off"
@@ -81,10 +81,10 @@ def test_the_day_counts_and_the_chip(client, monkeypatch):  # noqa: F811
 
 def test_the_name_follows_the_brain(client, monkeypatch, tmp_path):  # noqa: F811
     import yaml
-    from sellbird.paths import PROJECT_ROOT
+    from sellhawk.paths import PROJECT_ROOT
     asyncio.run(StateManager(str(client.db_path)).init_db())
-    base = yaml.safe_load((PROJECT_ROOT / "sellbird.yaml").read_text(encoding="utf-8"))
-    cfg = tmp_path / "sellbird.yaml"
+    base = yaml.safe_load((PROJECT_ROOT / "sellhawk.yaml").read_text(encoding="utf-8"))
+    cfg = tmp_path / "sellhawk.yaml"
     monkeypatch.setattr(dash, "_resolve_config_file", lambda: cfg)
     for provider, name in (("claude", "Claude"), ("codex", "Codex")):
         cfg.write_text(yaml.safe_dump({**base, "brain": {"provider": provider}}), encoding="utf-8")

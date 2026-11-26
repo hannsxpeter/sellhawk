@@ -1,11 +1,11 @@
-"""Sellbird's hard writing rules: what they catch, what they leave alone,
+"""Sellhawk's hard writing rules: what they catch, what they leave alone,
 and that the Writer, the Sender and the Outbox editor all enforce them."""
 
 from types import SimpleNamespace
 
 import pytest
 
-from sellbird.email_style import (
+from sellhawk.email_style import (
     BREAKUP_MAX_WORDS, FIRST_EMAIL_MAX_WORDS, style_problems, tidy, with_sign_off,
 )
 
@@ -17,8 +17,8 @@ def test_a_short_plain_email_passes():
 
 
 @pytest.mark.parametrize("body", [
-    "Sam, saw the new site — nice work. Who handles leads?",
-    "Sam, saw the new site – nice work. Who handles leads?",
+    "Sam, saw the new site \u2014 nice work. Who handles leads?",
+    "Sam, saw the new site \u2013 nice work. Who handles leads?",
     "Sam, saw the new site - nice work. Who handles leads?",
     "Sam, saw the new site -- nice work. Who handles leads?",
     "Sam, saw the new site--nice work. Who handles leads?",
@@ -114,7 +114,7 @@ class FixingBrain:
 
 
 def _writer(brain, rules=""):
-    from sellbird.agents.writer import Writer
+    from sellhawk.agents.writer import Writer
     w = Writer.__new__(Writer)
     w.brain = brain
     w.email_rules = rules
@@ -125,7 +125,7 @@ def _writer(brain, rules=""):
 @pytest.mark.asyncio
 async def test_writer_rewrites_a_draft_once_and_keeps_the_fix():
     brain = FixingBrain([{"subject": "missed calls", "body": CLEAN}])
-    draft = {"subject": "missed calls", "body": "Sam, slow callbacks — who answers after 5?"}
+    draft = {"subject": "missed calls", "body": "Sam, slow callbacks \u2014 who answers after 5?"}
     out = await _writer(brain)._keep_to_rules(draft, step=1)
     assert out == {"subject": "missed calls", "body": CLEAN + "\n\nAlex"}
     assert "uses a dash between words" in brain.prompts[0]
@@ -166,8 +166,8 @@ async def test_with_operator_rules_there_is_no_added_sign_off():
 
 @pytest.mark.asyncio
 async def test_sender_holds_an_email_with_a_dash_for_review(tmp_path):
-    from sellbird.agents.sender import Sender
-    from sellbird.state import HELD_FOR_REVIEW
+    from sellhawk.agents.sender import Sender
+    from sellhawk.state import HELD_FOR_REVIEW
     sender = Sender.__new__(Sender)
     sender.config = SimpleNamespace()
 
@@ -176,7 +176,7 @@ async def test_sender_holds_an_email_with_a_dash_for_review(tmp_path):
             return ""
 
     sender.state = State()
-    import sellbird.agents.sender as mod
+    import sellhawk.agents.sender as mod
 
     async def no_sync(*a, **k):
         return None
@@ -184,7 +184,7 @@ async def test_sender_holds_an_email_with_a_dash_for_review(tmp_path):
     mod_sync, mod.sync_sending_mode = mod.sync_sending_mode, no_sync
     try:
         prospect = SimpleNamespace(company="Acme", first_name="Sam", last_name="Lee")
-        item = {"kind": "reply", "subject": "Re: hi", "body": "Sure — Thursday works.",
+        item = {"kind": "reply", "subject": "Re: hi", "body": "Sure \u2014 Thursday works.",
                 "to_email": "sam@acme.com"}
         status, error = await sender._blocked(item, prospect, allow_risky=False)
     finally:
@@ -198,7 +198,7 @@ async def test_sender_holds_an_email_with_a_dash_for_review(tmp_path):
 PLAYBOOK = """# Signal playbook
 
 ## The core rule
-Say the signal plainly — first line.
+Say the signal plainly \u2014 first line.
 
 ### Hiring signal (they're hiring)
 Name the role.
@@ -224,7 +224,7 @@ def test_signal_guide_keeps_only_the_sections_the_facts_call_for():
     guide = w._signal_guide("- Signal (hiring): Inventory planner")
     assert "Name the role." in guide and "The core rule" in guide
     assert "Mention the raise." not in guide and "Say where they rank." not in guide
-    assert "—" not in guide
+    assert "\u2014" not in guide
 
 
 def test_signal_guide_without_a_signal_gives_the_fallback():
@@ -234,7 +234,7 @@ def test_signal_guide_without_a_signal_gives_the_fallback():
 
 def test_writer_no_longer_reads_the_long_playbooks():
     import inspect
-    from sellbird.brain import Brain
+    from sellhawk.brain import Brain
     src = inspect.getsource(Brain.load_skills_for_agent)
     assert '"writer": ["product_knowledge", "competitive_intel"]' in src
 
@@ -242,7 +242,7 @@ def test_writer_no_longer_reads_the_long_playbooks():
 # ── Email 1 is built around your offer ────────────────────────────────────
 
 def test_offer_block_uses_your_entry_offer():
-    from sellbird.agents.writer import offer_block
+    from sellhawk.agents.writer import offer_block
     cfg = SimpleNamespace(product=SimpleNamespace(offer=SimpleNamespace(entry="a mockup of your homepage")))
     block = offer_block(cfg)
     assert "YOUR OFFER for a first email: a mockup of your homepage" in block
@@ -250,13 +250,13 @@ def test_offer_block_uses_your_entry_offer():
 
 
 def test_without_an_offer_the_writer_asks_a_question():
-    from sellbird.agents.writer import offer_block
+    from sellhawk.agents.writer import offer_block
     cfg = SimpleNamespace(product=SimpleNamespace(offer=SimpleNamespace(entry="")))
     assert "none set" in offer_block(cfg)
 
 
 def test_training_suggests_offers_and_never_picks_or_replaces_yours():
-    from sellbird.trainer import _offer_from, merge_trained_config
+    from sellhawk.trainer import _offer_from, merge_trained_config
     offer = _offer_from({"entry_offer_ideas": ["a homepage mockup", "a ranking report", ""]})
     assert offer == {"entry_ideas": ["a homepage mockup", "a ranking report"]}
     learned = {"persona": {"company": "C"}, "product": {"name": "P", "offer": offer}}

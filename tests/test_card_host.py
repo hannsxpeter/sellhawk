@@ -1,4 +1,4 @@
-"""A chat card under a host. A click turns the Sellbird tab the person already
+"""A chat card under a host. A click turns the Sellhawk tab the person already
 has open (dashboard_navigate): no link, no code, nothing posted in the chat.
 With no tab open, the card asks the host to open a one-use sign-in link
 (never on Codex, which drops them) and believes it only once a tab answers;
@@ -9,7 +9,7 @@ import json
 
 import pytest
 
-from sellbird import mcp_cards
+from sellhawk import mcp_cards
 
 LINK = "http://127.0.0.1:5555/#code=" + "C" * 43 + "&page=outbox"
 CARD = {"kind": "needs_you", "title": "Waiting for you", "count": 1, "only_you": True,
@@ -78,7 +78,7 @@ def test_a_click_turns_the_open_tab_with_no_link_code_or_chat_message(browser, i
     assert _calls(page) == ["dashboard_navigate"]
     sent = [m for m in page.evaluate("window.seen") if m["method"] == "tools/call"][0]["params"]
     assert sent == {"name": "dashboard_navigate", "arguments": {"page": "outbox"}}
-    assert frame.locator(".fb").inner_text().strip() == "Opened in your Sellbird tab."
+    assert frame.locator(".fb").inner_text().strip() == "Opened in your Sellhawk tab."
     page.close()
 
 
@@ -87,7 +87,7 @@ def test_with_no_tab_a_host_that_opens_links_gets_the_one_use_link_and_the_tab_i
     page.wait_for_timeout(2200)
     assert _calls(page) == ["dashboard_navigate", "dashboard_open", "ui/open-link", "dashboard_navigate"]
     assert [m for m in page.evaluate("window.seen") if m["method"] == "ui/open-link"][0]["params"] == {"url": LINK}
-    assert "Opened Sellbird in a new tab." in frame.locator(".fb").inner_text()
+    assert "Opened Sellhawk in a new tab." in frame.locator(".fb").inner_text()
     page.close()
 
 
@@ -98,7 +98,7 @@ def test_with_no_tab_and_no_link_one_quiet_line_and_never_the_chat(browser, init
     calls = _calls(page)
     assert "ui/message" not in calls
     assert ("ui/open-link" in calls) is (init is OTHER)                 # Codex is never handed a link
-    assert "Open Sellbird in your side panel first, then click again." in frame.locator(".fb").inner_text()
+    assert "Open Sellhawk in your side panel first, then click again." in frame.locator(".fb").inner_text()
     assert frame.locator(".fb button").inner_text() == "Copy prompt"
     assert frame.locator("button:has-text('Review')").is_enabled()
     page.close()
@@ -109,13 +109,13 @@ CLAUDE = {"hostInfo": {"name": "Claude"}, "hostCapabilities": {"openLinks": {}}}
 
 def test_a_host_that_never_passes_the_click_on_says_so_and_asks_for_no_link(browser):
     # Claude Code answers a card's tools/call itself and never reaches the
-    # server, so the tab can't hear it. Say that, not "open Sellbird first".
+    # server, so the tab can't hear it. Say that, not "open Sellhawk first".
     page, frame = _click(browser, CLAUDE, tabs=0, tools="refuse")
     page.wait_for_timeout(500)
     assert _calls(page) == ["dashboard_navigate"]                         # no link, no chat message
     fb = frame.locator(".fb").inner_text()
-    assert "Claude doesn\u2019t pass card clicks to Sellbird yet. Ask your agent instead." in fb
-    assert frame.locator(".fb input").input_value() == "Show outbox in my Sellbird tab."
+    assert "Claude doesn\u2019t pass card clicks to Sellhawk yet. Ask your agent instead." in fb
+    assert frame.locator(".fb input").input_value() == "Show outbox in my Sellhawk tab."
     page.close()
 
 
@@ -156,7 +156,7 @@ def _click_with_pass(browser, init, tools, answer):
 def test_an_app_that_passes_tool_calls_on_never_uses_the_pass(browser):
     page, frame, posts = _click_with_pass(browser, CODEX, "pass", {"delivered": True})
     assert _calls(page) == ["dashboard_navigate"] and posts == []
-    assert frame.locator(".fb").inner_text().strip() == "Opened in your Sellbird tab."
+    assert frame.locator(".fb").inner_text().strip() == "Opened in your Sellhawk tab."
     page.close()
 
 
@@ -164,21 +164,21 @@ def test_when_the_app_drops_the_tool_call_the_card_posts_its_pass_straight_to_th
     page, frame, posts = _click_with_pass(browser, CLAUDE, "refuse", {"delivered": True})
     assert _calls(page) == ["dashboard_navigate"]                        # no link, no chat message
     assert posts == [{"pass": GO["pass"], "page": "outbox"}]             # only the pass and a page
-    assert frame.locator(".fb").inner_text().strip() == "Opened in your Sellbird tab."
+    assert frame.locator(".fb").inner_text().strip() == "Opened in your Sellhawk tab."
     page.close()
 
 
-def test_a_direct_post_with_no_tab_open_says_to_open_sellbird_first(browser):
+def test_a_direct_post_with_no_tab_open_says_to_open_sellhawk_first(browser):
     page, frame, posts = _click_with_pass(browser, CLAUDE, "refuse", {"delivered": False})
     assert len(posts) == 1 and "ui/open-link" not in _calls(page)
-    assert "Open Sellbird in your side panel first, then click again." in frame.locator(".fb").inner_text()
+    assert "Open Sellhawk in your side panel first, then click again." in frame.locator(".fb").inner_text()
     page.close()
 
 
 def test_a_blocked_direct_post_falls_back_to_the_prompt(browser):
     page, frame, posts = _click_with_pass(browser, CLAUDE, "refuse", None)
     assert len(posts) == 1
-    assert "Claude doesn’t pass card clicks to Sellbird yet. Ask your agent instead." in frame.locator(".fb").inner_text()
+    assert "Claude doesn’t pass card clicks to Sellhawk yet. Ask your agent instead." in frame.locator(".fb").inner_text()
     assert frame.locator(".fb button").inner_text() == "Copy prompt"
     page.close()
 

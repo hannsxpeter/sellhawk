@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from sellbird.trainer import Trainer
+from sellhawk.trainer import Trainer
 
 
 VALID = {

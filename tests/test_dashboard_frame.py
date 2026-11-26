@@ -12,9 +12,9 @@ from pathlib import Path
 import pytest
 
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
-from sellbird.state import StateManager
+from sellhawk.state import StateManager
 
-WEB = Path(__file__).resolve().parent.parent / "sellbird" / "web"
+WEB = Path(__file__).resolve().parent.parent / "sellhawk" / "web"
 PLACES = ["today", "outbound", "inbound", "people", "calendar", "numbers", "setup"]
 # The fifteen tabs of the sidebar this frame replaced: none may go missing.
 OLD_TABS = ["today", "company", "outbox", "inboxes", "conversations", "signals", "discover",
@@ -46,11 +46,11 @@ def test_every_old_tab_is_still_a_screen_inside_one_of_the_seven_places():
 
 def test_the_logo_is_the_signature_file_not_typed_text(client):
     html = client.get("/").text
-    assert "<span>sellbird</span>" not in html
+    assert "<span>sellhawk</span>" not in html
     assert 'class="logo"' in html
-    svg = client.get("/static/sellbird-signature.svg")
+    svg = client.get("/static/sellhawk-signature.svg")
     assert svg.status_code == 200 and svg.headers["content-type"].startswith("image/svg+xml")
-    assert "sellbird-signature.svg" in client.get("/static/app.css").text
+    assert "sellhawk-signature.svg" in client.get("/static/app.css").text
 
 
 def test_the_layout_sizes_to_its_own_frame():

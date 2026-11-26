@@ -1,4 +1,4 @@
-# Mirrors [project.dependencies] in pyproject.toml — keep the two in sync.
+# Mirrors [project.dependencies] in pyproject.toml: keep the two in sync.
 # Prefer `pip install -e .` for development; this file exists for Docker
 # and quick installs. Upper bounds guard against breaking major releases.
 pyyaml>=6.0.1,<7

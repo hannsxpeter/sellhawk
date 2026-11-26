@@ -1,15 +1,15 @@
 # LinkedIn Outreach Skills
 
-Sellbird's LinkedIn playbook for building relationships and generating conversations.
+Sellhawk's LinkedIn playbook for building relationships and generating conversations.
 
 ---
 
 ## Read First: Risk & Ethics
 
-- **Automating LinkedIn violates LinkedIn's Terms of Service.** The operator has been warned during setup; the account can be restricted or banned. Stay far under the rate limits in this file — they are ceilings, not targets.
-- **Never use a fake profile or fake identity.** Sellbird acts only as the configured persona on the operator's real account.
+- **Automating LinkedIn violates LinkedIn's Terms of Service.** The operator has been warned during setup; the account can be restricted or banned. Stay far under the rate limits in this file, they are ceilings, not targets.
+- **Never use a fake profile or fake identity.** Sellhawk acts only as the configured persona on the operator's real account.
 - **If someone asks whether messages are automated, answer truthfully.** Immediately.
-- **A "not interested" or ignored message thread is final.** No repeated connection requests, no pestering across email after a LinkedIn decline — the opt-out follows the person, not the channel.
+- **A "not interested" or ignored message thread is final.** No repeated connection requests, no pestering across email after a LinkedIn decline, the opt-out follows the person, not the channel.
 - **Never scrape or store data from private profiles** beyond what's needed to qualify and personalize (name, title, company, public posts).
 
 ---
@@ -23,13 +23,13 @@ Sellbird's LinkedIn playbook for building relationships and generating conversat
 
 ### Good Connection Notes (under 300 chars)
 ```
-"Hi {{first_name}} — saw your post about {{topic}}. Thought-provoking stuff.
+"Hi {{first_name}}, saw your post about {{topic}}. Thought-provoking stuff.
 Would love to connect."
 
-"Hi {{first_name}} — we're both in the {{industry}} space. Always good to
+"Hi {{first_name}}, we're both in the {{industry}} space. Always good to
 connect with fellow {{title}}s."
 
-"{{first_name}} — {{mutual_connection}} mentioned you're doing great work
+"{{first_name}}, {{mutual_connection}} mentioned you're doing great work
 at {{company}}. Would love to connect."
 ```
 
@@ -53,7 +53,7 @@ at {{company}}. Would love to connect."
 
 ```
 "Thanks for connecting, {{first_name}}! Been following what {{company}}
-is doing with {{initiative}} — really impressive growth.
+is doing with {{initiative}}, really impressive growth.
 
 Quick question: how are you all currently handling {{relevant_process}}?"
 ```
@@ -64,7 +64,7 @@ Quick question: how are you all currently handling {{relevant_process}}?"
 - Frame as "we do something similar" not "buy our thing"
 
 ```
-"That's interesting — we actually built something that tackles exactly that.
+"That's interesting, we actually built something that tackles exactly that.
 A few {{industry}} companies are using it to {{benefit}}.
 
 Would you be open to a quick look? No pressure at all."
@@ -75,7 +75,7 @@ Would you be open to a quick look? No pressure at all."
 - Add value (share an article, insight, or observation)
 
 ```
-"Hey {{first_name}} — came across this {{article/stat}} about {{topic}}
+"Hey {{first_name}}, came across this {{article/stat}} about {{topic}}
 and thought of {{company}}. Figured it might be useful.
 
 [Link or brief summary]"
@@ -109,7 +109,7 @@ When commenting on prospects' posts:
 - Keep it under 3 sentences
 
 Good: "This resonates. We saw the same pattern with {{related insight}}.
-Curious — did you find that {{follow-up question}}?"
+Curious, did you find that {{follow-up question}}?"
 
 Bad: "Great insight! 🔥 Totally agree!"
 

@@ -2,7 +2,7 @@
 
 ## Core Rule: Earn the Right to Ask
 
-Never lead with an offer. Never pitch in a cold email. The first outreach exists to start a conversation — not to close a deal.
+Never lead with an offer. Never pitch in a cold email. The first outreach exists to start a conversation, not to close a deal.
 
 Offers are only presented after a prospect has shown genuine interest:
 - They replied positively
@@ -21,11 +21,11 @@ Not every interested prospect gets the same offer. Match the offer to their leve
 | **Curious** | Asked a question, clicked a link | Answer their question + soft CTA ("Happy to walk you through it if useful") |
 | **Interested** | Expressed a pain point, asked about features | Share a relevant resource or case study + suggest a quick call |
 | **Ready** | Asked about pricing, timeline, or next steps | Present the specific offer with clear next step |
-| **Urgent** | Has a deadline, lost their current vendor, hiring | Move fast — present the offer immediately with urgency framing |
+| **Urgent** | Has a deadline, lost their current vendor, hiring | Move fast, present the offer immediately with urgency framing |
 
 ## Crafting Offers from Product Knowledge
 
-When Sellbird learns about a product (via website crawl or manual training), it should identify:
+When Sellhawk learns about a product (via website crawl or manual training), it should identify:
 
 1. **Primary offer**: What's the main thing we're selling? (e.g., software subscription, service engagement, audit/assessment)
 2. **Entry offers**: Lower-commitment ways to start (e.g., free trial, pilot program, free audit, strategy session)
@@ -37,12 +37,12 @@ For each product, determine:
 - **What they get**: Specific deliverable or access (not vague "value")
 - **What it costs**: Price, time commitment, or "free"
 - **What they risk**: Nothing (free trial), money-back guarantee, or month-to-month
-- **What happens next**: The exact mechanic — click a link, reply with times, fill out a form
+- **What happens next**: The exact mechanic, click a link, reply with times, fill out a form
 
 ### Example Offer Structures
 
 **SaaS Product:**
-- Entry: "We have a 14-day free trial — no credit card needed. Want me to set one up for you?"
+- Entry: "We have a 14-day free trial, no credit card needed. Want me to set one up for you?"
 - Primary: "Plans start at $X/mo. Want me to walk you through which tier makes sense for your team?"
 
 **Service/Agency:**
@@ -64,7 +64,7 @@ Best when: High volume, self-service feel, user has a scheduling tool set up.
 ```
 - Use when the product config includes a `booking_url`
 - Always specify the time commitment ("15 minutes", "quick 20-min call")
-- Never say "book a demo" — say "grab time" or "jump on a call"
+- Never say "book a demo", say "grab time" or "jump on a call"
 
 ### Option 2: Suggest Specific Times
 Best when: More personal feel, higher-touch sale, no calendar tool.
@@ -91,9 +91,9 @@ Best when: Product sells itself, prospect just needs access.
 - For self-serve products with free trials
 - Skip the call if the product can speak for itself
 
-## What Sellbird Should Confirm with the User
+## What Sellhawk Should Confirm with the User
 
-During setup or training, Sellbird needs to know:
+During setup or training, Sellhawk needs to know:
 
 1. **What's the primary offer?** (subscription, service, trial, audit, etc.)
 2. **Is there an entry offer?** (free trial, free audit, sample, etc.)
@@ -102,10 +102,10 @@ During setup or training, Sellbird needs to know:
    - Calendar link (provide URL)
    - Suggest times
    - Ask for their preference
-5. **Who takes the meeting?** (the user, a sales team member, Sellbird books and someone else shows up)
+5. **Who takes the meeting?** (the user, a sales team member, Sellhawk books and someone else shows up)
 6. **Any qualification before booking?** (company size, budget, specific need)
 
-These answers go into `sellbird.yaml` under the product config and inform how Sellbird writes emails and handles replies.
+These answers go into `sellhawk.yaml` under the product config and inform how Sellhawk writes emails and handles replies.
 
 ## Offer Timing in the Sequence
 
@@ -138,7 +138,7 @@ These answers go into `sellbird.yaml` under the product config and inform how Se
 
 When a prospect asks about pricing before you've qualified them:
 
-1. Give a real answer — never dodge the question
+1. Give a real answer, never dodge the question
 2. Frame it with context: "Plans start at $X/mo, depending on [variable]. Most teams your size are on the [tier] plan."
 3. Pivot to qualification: "To give you an exact number, it'd help to know [specific question about their needs]."
 4. If there's a free entry offer, lead with that: "There's a free trial so you can see if it fits before committing to anything."

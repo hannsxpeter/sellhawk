@@ -1,29 +1,29 @@
 #!/usr/bin/env python
-"""Why is Overpass failing right now? — a read-only probe of the mirrors.
+"""Why is Overpass failing right now?, a read-only probe of the mirrors.
 
-Sellbird's OpenStreetMap provider walks ``OpenStreetMap.ENDPOINTS`` and gives up
+Sellhawk's OpenStreetMap provider walks ``OpenStreetMap.ENDPOINTS`` and gives up
 with one message for every kind of failure, which is exactly the information
 you do not have when a run comes back empty. This script separates the three
 possible culprits:
 
-* **the public servers** — a 429/5xx answer, or no answer at all;
-* **this machine's network** — DNS that does not resolve, a connection that
+* **the public servers**: a 429/5xx answer, or no answer at all;
+* **this machine's network**: DNS that does not resolve, a connection that
   never opens, a connection that opens and then hangs;
-* **Sellbird's own code** — ruled in or out by whether a minimal query, sent the
-  same way Sellbird sends its queries, succeeds here.
+* **Sellhawk's own code**, ruled in or out by whether a minimal query, sent the
+  same way Sellhawk sends its queries, succeeds here.
 
-It is deliberately inert: it never opens the Sellbird database, never writes a
+It is deliberately inert: it never opens the Sellhawk database, never writes a
 company or an observation, never runs a pipeline stage, and never sends mail.
-It imports ``sellbird.collectors.discover`` only to read the endpoint list and
-the retry statuses, so what is probed is what Sellbird is actually configured
-with. That import pulls in ``sellbird.models`` and nothing that connects.
+It imports ``sellhawk.collectors.discover`` only to read the endpoint list and
+the retry statuses, so what is probed is what Sellhawk is actually configured
+with. That import pulls in ``sellhawk.models`` and nothing that connects.
 
 Network discipline, because these are volunteer servers:
 
 * hosts that resolve to the same addresses are one instance, and are probed
-  once — an alias is not a second chance;
+  once, an alias is not a second chance;
 * one DNS lookup, one TCP connect and at most one Overpass query per instance;
-* that query is ``node(1);out;`` — a single node by id, no geographic area —
+* that query is ``node(1);out;``, a single node by id, no geographic area;
   or, with ``--coverage``, a tally of the cafes in one square kilometre of
   Denver, which separates a full-planet instance from a regional extract;
 * ``--only`` narrows a run to one mirror, so vetting a candidate costs the
@@ -40,7 +40,7 @@ Usage (nothing happens until one of these is run):
     .venv/Scripts/python.exe scripts/diagnose_overpass.py --dns-only
     .venv/Scripts/python.exe scripts/diagnose_overpass.py --read-timeout 120
 
-Vetting a candidate mirror before it goes into ENDPOINTS — one query, and the
+Vetting a candidate mirror before it goes into ENDPOINTS: one query, and the
 configured mirrors are left alone:
 
     .venv/Scripts/python.exe scripts/diagnose_overpass.py --coverage
@@ -58,19 +58,19 @@ import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from sellbird.collectors.discover import OpenStreetMap  # noqa: E402
+from sellhawk.collectors.discover import OpenStreetMap  # noqa: E402
 
 # The smallest valid Overpass query there is: one node, by id, no area filter.
 QUERY = "[out:json][timeout:10];node(1);out;"
 # Is this instance the whole planet, or a regional extract? A community
 # mirror can be independent, fast and still hold one country, which would
-# answer "roofers in Denver" with an empty list — the one failure this
+# answer "roofers in Denver" with an empty list: the one failure this
 # provider must never produce. ``out count`` returns a tally, not the data,
 # so asking is cheap: a few cafes in downtown Denver, 1km radius.
 COVERAGE = ("[out:json][timeout:25];"
             "node[amenity=cafe](around:1000,39.7392,-104.9903);out count;")
-HEADERS = {"User-Agent": "Sellbird/0.1 diagnostics (one-off mirror probe; "
-                         "github.com/ethanplusai/sellbird)"}
+HEADERS = {"User-Agent": "Sellhawk/0.1 diagnostics (one-off mirror probe; "
+                         "github.com/hannsxpeter/sellhawk)"}
 
 
 def resolve(host):
@@ -96,25 +96,25 @@ def tcp_probe(ip, timeout=5.0):
 def classify(e):
     """The useful name for a transport failure, which str(e) often is not."""
     if isinstance(e, httpx.ConnectTimeout):
-        return "connect timeout — nothing answered the handshake"
+        return "connect timeout, nothing answered the handshake"
     if isinstance(e, httpx.ReadTimeout):
-        return "read timeout — connected, then no response in time"
+        return "read timeout, connected, then no response in time"
     if isinstance(e, httpx.WriteTimeout):
-        return "write timeout — connected, could not send the query"
+        return "write timeout, connected, could not send the query"
     if isinstance(e, httpx.PoolTimeout):
-        return "pool timeout — client-side, not the server"
+        return "pool timeout, client-side, not the server"
     if isinstance(e, httpx.ConnectError):
         detail = str(e) or e.__class__.__name__
         if "getaddrinfo" in detail or "Name or service" in detail:
             return f"DNS failure inside httpx: {detail}"
         return f"connection refused or reset: {detail}"
     if isinstance(e, httpx.RemoteProtocolError):
-        return f"protocol error — the server hung up mid-response: {e}"
+        return f"protocol error, the server hung up mid-response: {e}"
     return f"{e.__class__.__name__}: {e or '(no detail)'}"
 
 
 def query_once(client, url, query=QUERY):
-    """One minimal Overpass query. No retry — that is Sellbird's job, not ours."""
+    """One minimal Overpass query. No retry, that is Sellhawk's job, not ours."""
     t0 = time.perf_counter()
     try:
         r = client.post(url, content=query.encode(), headers=HEADERS)
@@ -126,27 +126,27 @@ def query_once(client, url, query=QUERY):
 def describe(r):
     """What the answer tells us, beyond the number."""
     retryable = r.status_code in OpenStreetMap.RETRY_STATUSES
-    verdict = ("Sellbird treats this as transient and walks to the next mirror"
-               if retryable else "Sellbird fails the query here, by design")
+    verdict = ("Sellhawk treats this as transient and walks to the next mirror"
+               if retryable else "Sellhawk fails the query here, by design")
     if r.status_code == 200:
         try:
             body = r.json()
         except ValueError:
-            return "HTTP 200 but the body is not JSON — a portal or a proxy?"
+            return "HTTP 200 but the body is not JSON: a portal or a proxy?"
         remark = (body.get("remark") or "").strip()
         els = body.get("elements") or []
         if len(els) == 1 and els[0].get("type") == "count":
             total = (els[0].get("tags") or {}).get("total", "?")
-            verdict = ("holds data outside Europe — full planet"
+            verdict = ("holds data outside Europe, full planet"
                        if total not in ("0", "?") else
-                       "NO data for that area — a regional extract, unusable "
+                       "NO data for that area, a regional extract, unusable "
                        "as a mirror")
-            return f"HTTP 200, count={total} — {verdict}"
-        out = (f"HTTP 200, valid JSON, {len(els)} element(s) — this instance "
+            return f"HTTP 200, count={total}, {verdict}"
+        out = (f"HTTP 200, valid JSON, {len(els)} element(s), this instance "
                f"is answering")
         return f"{out}; server remark: {remark}" if remark else out
     first = " ".join((r.text or "").split())[:140]
-    return f"HTTP {r.status_code} — {verdict}" + (f"; body: {first}" if first else "")
+    return f"HTTP {r.status_code}, {verdict}" + (f"; body: {first}" if first else "")
 
 
 def main():
@@ -225,7 +225,7 @@ def main():
                 continue
             print(f"   dns   {', '.join(row['ips'])}")
             tcp, tcp_s = tcp_probe(row["ips"][0])
-            print(f"   tcp   {tcp}  ({tcp_s:.2f}s, port 443 — not an API check)")
+            print(f"   tcp   {tcp}  ({tcp_s:.2f}s, port 443, not an API check)")
             r, err, secs = query_once(client, url,
                                       COVERAGE if args.coverage else QUERY)
             outcome = err or describe(r)

@@ -14,9 +14,9 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from fastapi.testclient import TestClient
 
-import sellbird.dashboard as dash
-from sellbird.signals import seed_signal_catalog
-from sellbird.state import StateManager
+import sellhawk.dashboard as dash
+from sellhawk.signals import seed_signal_catalog
+from sellhawk.state import StateManager
 
 ORIGIN = "http://127.0.0.1:5555"
 
@@ -24,15 +24,15 @@ ORIGIN = "http://127.0.0.1:5555"
 @pytest.fixture
 def env(tmp_path, monkeypatch):
     (tmp_path / "data").mkdir()
-    db = tmp_path / "data" / "sellbird.db"
+    db = tmp_path / "data" / "sellhawk.db"
     monkeypatch.setattr(dash, "ENV_FILE", tmp_path / ".env")
     monkeypatch.setattr(dash, "DB_PATH", db)
-    monkeypatch.setattr(dash, "PID_FILE", tmp_path / "data" / "sellbird.pid")
-    monkeypatch.setattr(dash, "LOG_FILE", tmp_path / "data" / "sellbird.log")
+    monkeypatch.setattr(dash, "PID_FILE", tmp_path / "data" / "sellhawk.pid")
+    monkeypatch.setattr(dash, "LOG_FILE", tmp_path / "data" / "sellhawk.log")
     dash.token_store.configure(tmp_path / "data" / "dashboard-token")
-    # No mailbox connected: the user sends by hand. Tests that need Sellbird
+    # No mailbox connected: the user sends by hand. Tests that need Sellhawk
     # to be able to send set this back.
-    monkeypatch.setattr(dash, "_sellbird_can_send", lambda: False)
+    monkeypatch.setattr(dash, "_sellhawk_can_send", lambda: False)
     async def _init():
         state = StateManager(db_path=str(db))
         await state.init_db()
@@ -156,8 +156,8 @@ def _outbox(env, oid, pid, status):
 
 
 def test_drafts_waiting_in_the_outbox_point_there_not_at_gmail(client, env, monkeypatch):
-    monkeypatch.setattr(dash, "_sellbird_can_send", lambda: True)
-    # Sellbird is sending these itself: telling the user to send them from
+    monkeypatch.setattr(dash, "_sellhawk_can_send", lambda: True)
+    # Sellhawk is sending these itself: telling the user to send them from
     # Campaigns by hand would email the same person twice.
     _prospect(env, "p1", "a@acme.test", status="queued")
     _campaign(env, "c1", ["p1"])
@@ -166,7 +166,7 @@ def test_drafts_waiting_in_the_outbox_point_there_not_at_gmail(client, env, monk
         "Review the 1 draft(s) waiting in the Outbox."
 
 
-def test_approved_mail_sellbird_will_send_is_not_a_job_for_the_user(client, env):
+def test_approved_mail_sellhawk_will_send_is_not_a_job_for_the_user(client, env):
     # Even with no mailbox connected now, mail already approved is not the user's to send.
     _prospect(env, "p1", "a@acme.test", status="queued")
     _campaign(env, "c1", ["p1"])

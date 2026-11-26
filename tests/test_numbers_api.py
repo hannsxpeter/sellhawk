@@ -5,7 +5,7 @@ import asyncio
 import sqlite3
 from datetime import datetime, timedelta, timezone
 
-from sellbird.state import StateManager
+from sellhawk.state import StateManager
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 
 
@@ -90,12 +90,12 @@ def test_every_setup_step_says_where_it_is_fixed(client):  # noqa: F811
     assert "you confirm" in sig["help"].lower()
 
 
-def test_the_fixes_the_warnings_point_to_save_where_sellbird_reads_them(tmp_path):
+def test_the_fixes_the_warnings_point_to_save_where_sellhawk_reads_them(tmp_path):
     """The postal address, the booking link and your form's sender address
     are edited in the dashboard now, not only in the config file."""
     import yaml
-    from sellbird.offer import save_company
-    cfg = tmp_path / "sellbird.yaml"
+    from sellhawk.offer import save_company
+    cfg = tmp_path / "sellhawk.yaml"
     cfg.write_text(yaml.safe_dump({"compliance": {"precleared": {"enabled": False}}, "product": {"name": "Example"}}),
                    encoding="utf-8")
     save_company(cfg, "compliance", {"postal_address": "100 Example Street, Springfield", "opt_out_line": "Reply stop."})
@@ -122,7 +122,7 @@ def _run_js(names, call):
     node = shutil.which("node")
     if not node:
         pytest.skip("node is not installed")
-    source = (Path(__file__).resolve().parent.parent / "sellbird" / "web" / "app.js").read_text(encoding="utf-8")
+    source = (Path(__file__).resolve().parent.parent / "sellhawk" / "web" / "app.js").read_text(encoding="utf-8")
     parts = ["const CHECK_SVG = '<svg></svg>';", "function goFix() {}"]
     for name in names:
         match = re.search(r"^function " + name + r"\(.*?^}\n", source, re.S | re.M)

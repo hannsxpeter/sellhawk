@@ -3,7 +3,7 @@ pattern cache that no longer gets stuck on a default guess."""
 
 import pytest
 
-import sellbird.integrations.email_finder as ef
+import sellhawk.integrations.email_finder as ef
 
 
 # ── email patterns from published addresses ──

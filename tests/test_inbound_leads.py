@@ -9,9 +9,9 @@ from contextlib import closing
 
 import pytest
 
-from sellbird import agent_policy, form_mail, leads
-from sellbird.config import InboundConfig
-from sellbird.state import Prospect
+from sellhawk import agent_policy, form_mail, leads
+from sellhawk.config import InboundConfig
+from sellhawk.state import Prospect
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
 from tests.test_outbox_native import (  # noqa: F401  (fixture)
     FakeProvider, InboundMessage, make_handler, state,
@@ -178,7 +178,7 @@ async def test_an_answer_waits_for_approval_even_on_autopilot(state):
     assert (await leads.queue_answer(state, Auto, other["lead_id"], body="Hello Lee."))["status"] == "approved"
 
 
-# ── form emails in the inbox Sellbird reads ──
+# ── form emails in the inbox Sellhawk reads ──
 
 def _form_handler(state, messages, **inbound):
     provider = FakeProvider()
@@ -297,7 +297,7 @@ def test_today_says_when_a_lead_has_no_answer(client):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_the_mcp_tools_reach_the_lead_routes():
-    from sellbird import mcp_server
+    from sellhawk import mcp_server
     calls = []
 
     class Client:

@@ -10,10 +10,10 @@ from types import SimpleNamespace
 import pytest
 
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
-from sellbird import consent, texting
-from sellbird.config import TextingConfig
-from sellbird.integrations import twilio
-from sellbird.state import StateManager
+from sellhawk import consent, texting
+from sellhawk.config import TextingConfig
+from sellhawk.integrations import twilio
+from sellhawk.state import StateManager
 
 PHONE = "+13035550119"
 NOON = datetime(2026, 3, 10, 18, 0, tzinfo=timezone.utc)      # midday in Denver
@@ -46,7 +46,7 @@ class FakeTwilio:
 
 @pytest.fixture
 def state(tmp_path):
-    sm = StateManager(str(tmp_path / "sellbird.db"))
+    sm = StateManager(str(tmp_path / "sellhawk.db"))
     run(sm.init_db())
     with sqlite3.connect(sm.db_path) as conn:
         conn.execute("INSERT INTO prospects (id, first_name, email, phone, status, timezone) "
@@ -270,7 +270,7 @@ def test_recording_a_yes_needs_evidence_and_the_check_reports_why(client):
 
 
 def test_the_agent_may_draft_and_ask_but_never_approve_or_record_a_yes():
-    from sellbird.agent_policy import agent_may
+    from sellhawk.agent_policy import agent_may
     assert agent_may("GET", "/api/texting") and agent_may("POST", "/api/texts")
     assert agent_may("POST", "/api/consent/check") and agent_may("POST", "/api/phone-blocks")
     assert not agent_may("POST", "/api/texts/t1/approve")

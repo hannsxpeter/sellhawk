@@ -8,19 +8,19 @@ vulnerability**. Only the maintainers can see the report.
 
 Include what you found, how to reproduce it, and what an attacker could do
 with it. Use fictional data in your report, as in [CONTRIBUTING.md](CONTRIBUTING.md):
-never a real person's contact details or anything from a real Sellbird database.
+never a real person's contact details or anything from a real Sellhawk database.
 
 We'll acknowledge the report within a few days, keep you updated while we work
 on a fix, and credit you in the release notes unless you'd rather we didn't.
 
 ## Supported versions
 
-Security fixes go into the latest release on `main`. Sellbird is updated with
+Security fixes go into the latest release on `main`. Sellhawk is updated with
 `git pull`, so please check the problem still happens there.
 
 ## What's in scope
 
-Sellbird runs on your own machine with your own credentials. The most
+Sellhawk runs on your own machine with your own credentials. The most
 important boundaries are:
 
 - the dashboard's sign-in token and its loopback-only listener
@@ -32,6 +32,3 @@ important boundaries are:
 
 A problem that needs code already running as your own user account is out of
 scope: that code can read `.env` and the database directly.
-
-The hosted service at [sellbird.ai](https://sellbird.ai) is a separate product;
-report problems with it the same way and say it's about the hosted service.

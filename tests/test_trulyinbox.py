@@ -1,7 +1,7 @@
-"""TrulyInbox: the warmup service Sellbird recommends, and reads.
+"""TrulyInbox: the warmup service Sellhawk recommends, and reads.
 
-Sellbird only reads from TrulyInbox (is the sending mailbox enrolled, is warmup
-on, how much of its warmup mail lands in spam), so `sellbird warmup` can say
+Sellhawk only reads from TrulyInbox (is the sending mailbox enrolled, is warmup
+on, how much of its warmup mail lands in spam), so `sellhawk warmup` can say
 whether a mailbox is actually warmed instead of counting days from a date.
 """
 
@@ -11,9 +11,9 @@ from datetime import date, timedelta
 import httpx
 import pytest
 
-from sellbird import deliverability as d
-from sellbird.config import WarmupConfig
-from sellbird.integrations import trulyinbox as ti
+from sellhawk import deliverability as d
+from sellhawk.config import WarmupConfig
+from sellhawk.integrations import trulyinbox as ti
 
 KEY = "ti_ws_test_key_123"
 ADDR = "sales@getacme.example"
@@ -161,7 +161,7 @@ def test_a_key_that_cant_go_in_a_header_is_refused():
         ti.TrulyInbox("bad\nkey")
 
 
-# ── What `sellbird warmup` says ──
+# ── What `sellhawk warmup` says ──
 
 TODAY = date(2026, 10, 25)
 
@@ -175,8 +175,14 @@ def _health(**kw):
 
 def test_not_connected_recommends_trulyinbox_with_the_link():
     c = d.check_warmup_service(None, today=TODAY)
-    assert ti.AFFILIATE_URL in c.detail and "sellbird trulyinbox connect" in c.detail
+    assert ti.AFFILIATE_URL in c.detail and "sellhawk trulyinbox connect" in c.detail
     assert c.status == d.INFO
+
+
+def test_warmup_message_has_url_but_not_affiliate():
+    c = d.check_warmup_service(None, today=TODAY)
+    assert ti.AFFILIATE_URL in c.detail
+    assert "affiliate" not in c.detail.lower()
 
 
 def test_warmed_mailbox_is_ok_and_shows_inbox_rate():
@@ -222,14 +228,14 @@ def test_another_warmup_service_is_respected():
 # ── The link is defined once ──
 
 def test_the_link_lives_in_one_constant():
-    from sellbird.paths import PROJECT_ROOT
-    src = [p for p in (PROJECT_ROOT / "sellbird").rglob("*") if p.suffix in (".py", ".js", ".html")]
-    # With every other recommended link, in sellbird.recommended (see test_recommended).
-    assert [p.name for p in src if "trulyinbox.com/?via" in p.read_text(encoding="utf-8")] == ["recommended.py"]
-    for name in ("README.md", "CLAUDE.md", "sellbird.yaml"):
+    from sellhawk.paths import PROJECT_ROOT
+    src = [p for p in (PROJECT_ROOT / "sellhawk").rglob("*") if p.suffix in (".py", ".js", ".html")]
+    # With every other recommended link, in sellhawk.recommended (see test_recommended).
+    # No affiliate referral params.
+    assert [p.name for p in src if "trulyinbox.com/?via" in p.read_text(encoding="utf-8")] == []
+    for name in ("README.md", "AGENTS.md", "sellhawk.yaml"):
         text = (PROJECT_ROOT / name).read_text(encoding="utf-8")
         assert ti.AFFILIATE_URL in text, name
-        # every link to the site carries the referral
         assert text.count("trulyinbox.com/") - text.count("dev.trulyinbox.com/") \
             == text.count(ti.AFFILIATE_URL), name
 
@@ -238,7 +244,7 @@ def test_the_link_lives_in_one_constant():
 
 @pytest.mark.asyncio
 async def test_the_choice_is_remembered(tmp_path):
-    from sellbird.state import StateManager
+    from sellhawk.state import StateManager
     state = StateManager(str(tmp_path / "h.db"))
     await state.init_db()
     assert await ti.get_choice(state) == ""
@@ -294,3 +300,48 @@ def test_the_status_line_is_honest(health, error, choice, words):
 def test_the_missing_scope_message_names_every_scope_connect_asks_for():
     for scope in ("accounts:read", "warmup:read", "analytics:read", "workspace:read"):
         assert scope in ti.MISSING_SCOPE
+
+
+# ── CLI: sellhawk trulyinbox connect ──
+
+def test_connect_cli_banner_has_url_but_not_affiliate(monkeypatch, tmp_path, capsys):
+    """The connect banner prints the TrulyInbox URL and never the word affiliate."""
+    import getpass
+    from types import SimpleNamespace
+
+    import sellhawk.cli as cli
+    import sellhawk.config as config_mod
+    import sellhawk.dashboard as dash
+    import sellhawk.state as state_mod
+    from sellhawk.state import StateManager
+
+    db = tmp_path / "connect.db"
+    monkeypatch.setattr(state_mod, "StateManager", lambda: StateManager(str(db)))
+    monkeypatch.setattr(config_mod, "load_config", lambda: SimpleNamespace(
+        persona=SimpleNamespace(email=ADDR),
+        channels=SimpleNamespace(email=SimpleNamespace(
+            provider="gmail", warmup=WarmupConfig())),
+    ))
+    monkeypatch.setattr(getpass, "getpass", lambda prompt="": KEY)
+    monkeypatch.delenv("TRULYINBOX_API_KEY", raising=False)
+    monkeypatch.delenv("TRULYINBOX_WORKSPACE_ID", raising=False)
+    # cmd_trulyinbox imports load_dotenv locally; noop it so a checkout .env
+    # cannot repopulate the keys we just cleared (and leak into later tests).
+    monkeypatch.setattr("dotenv.load_dotenv", lambda *a, **k: False)
+
+    async def fake_health(self, address):
+        self.workspace_id = "42"
+        return _health(address=address)
+
+    monkeypatch.setattr(ti.TrulyInbox, "mailbox_health", fake_health)
+    written = {}
+    monkeypatch.setattr(dash, "_write_env_file", lambda u: written.update(u))
+
+    with pytest.raises(SystemExit) as exit_:
+        cli.cmd_trulyinbox(SimpleNamespace(trulyinbox_action="connect"))
+    assert exit_.value.code == 0
+    assert written == {"TRULYINBOX_API_KEY": KEY, "TRULYINBOX_WORKSPACE_ID": "42"}
+
+    out = capsys.readouterr().out
+    assert ti.AFFILIATE_URL in out
+    assert "affiliate" not in out.lower()

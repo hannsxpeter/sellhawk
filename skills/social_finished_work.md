@@ -31,7 +31,7 @@ Never invent a job, a number or a customer. If you do not have a real one, ask f
 
 ## Media note
 
-Say which photos go with the post and in what order (before first), in the media note. Sellbird stores no images.
+Say which photos go with the post and in what order (before first), in the media note. Sellhawk stores no images.
 
 ## Do not
 

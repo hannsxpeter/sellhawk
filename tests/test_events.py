@@ -8,13 +8,13 @@ from contextlib import closing
 import pytest
 
 from tests.test_dashboard_signals import client  # noqa: F401  (fixture)
-from sellbird import events
-from sellbird.config import WebhookConfig
-from sellbird.models.prospect import Prospect
-from sellbird.state import StateManager
+from sellhawk import events
+from sellhawk.config import WebhookConfig
+from sellhawk.models.prospect import Prospect
+from sellhawk.state import StateManager
 
 SECRET = "s3cret-for-tests-only"
-URL = "https://hooks.example.com/sellbird"
+URL = "https://hooks.example.com/sellhawk"
 
 
 def run(coro):
@@ -43,8 +43,8 @@ class FakeClient:
 
 @pytest.fixture
 def state(tmp_path, monkeypatch):
-    monkeypatch.setenv("SELLBIRD_WEBHOOK_SECRET", SECRET)
-    sm = StateManager(str(tmp_path / "sellbird.db"))
+    monkeypatch.setenv("SELLHAWK_WEBHOOK_SECRET", SECRET)
+    sm = StateManager(str(tmp_path / "sellhawk.db"))
     run(sm.init_db())
     return sm
 
@@ -73,13 +73,13 @@ def test_a_signature_verifies_and_a_changed_body_secret_or_old_time_does_not():
 
 
 def test_an_endpoint_must_be_https_and_have_a_secret(monkeypatch):
-    monkeypatch.setenv("SELLBIRD_WEBHOOK_SECRET", SECRET)
+    monkeypatch.setenv("SELLHAWK_WEBHOOK_SECRET", SECRET)
     assert events.endpoint_problem(WebhookConfig(url=URL)) == ""
     assert events.endpoint_problem(WebhookConfig(url="http://localhost:8080/hook")) == ""
     assert "https" in events.endpoint_problem(WebhookConfig(url="http://hooks.example.com/x"))
     assert "username" in events.endpoint_problem(WebhookConfig(url="https://user:pw@hooks.example.com/x"))
     assert "unknown events" in events.endpoint_problem(WebhookConfig(url=URL, events=["deal.exploded"]))
-    monkeypatch.delenv("SELLBIRD_WEBHOOK_SECRET")
+    monkeypatch.delenv("SELLHAWK_WEBHOOK_SECRET")
     assert "not set" in events.endpoint_problem(WebhookConfig(url=URL))
     shown = events.describe_endpoints(_config())[0]
     assert SECRET not in json.dumps(shown) and shown["host"] == "hooks.example.com"
@@ -120,12 +120,12 @@ def test_events_are_delivered_signed_once_and_only_after_the_endpoint_was_added(
     report = run(events.deliver_pending(config, state, client=http))
     assert report == {"delivered": 1, "failed": 0, "skipped": 0}
     call = http.calls[0]
-    assert call["url"] == URL and call["headers"]["Sellbird-Event"] == "lead.created"
+    assert call["url"] == URL and call["headers"]["Sellhawk-Event"] == "lead.created"
     assert events.verify_signature(SECRET, call["body"], call["headers"][events.SIGNATURE_HEADER])
     sent = json.loads(call["body"])
     assert sent["type"] == "lead.created" and sent["api_version"] == events.API_VERSION
     assert sent["data"]["person"]["email"] == "avery@example.com"
-    assert sent["id"] == call["headers"]["Sellbird-Delivery"]
+    assert sent["id"] == call["headers"]["Sellhawk-Delivery"]
     assert run(events.deliver_pending(config, state, client=http))["delivered"] == 0   # never twice
     assert len(http.calls) == 1
 
@@ -158,7 +158,7 @@ def test_an_endpoint_only_hears_the_events_it_asked_for_and_none_without_a_secre
     run(state.record_booking("p1"))
     report = run(events.deliver_pending(config, state, client=http))
     assert report["delivered"] == 1 and report["skipped"] == 1
-    assert [c["headers"]["Sellbird-Event"] for c in http.calls] == ["meeting.booked"]
+    assert [c["headers"]["Sellhawk-Event"] for c in http.calls] == ["meeting.booked"]
     assert all("nosecret" not in c["url"] for c in http.calls)
 
 
@@ -179,13 +179,13 @@ def test_the_events_route_lists_types_endpoints_and_events_without_secrets(clien
         conn.execute("INSERT INTO prospects (id, first_name, email, status) VALUES ('p1', 'Avery', 'avery@example.com', 'contacted')")
     assert client.post("/api/prospects/p1/stage", json={"stage": "proposal"}).status_code == 200
     data = client.get("/api/events").json()
-    assert data["types"] == list(events.EVENT_TYPES) and data["signature_header"] == "Sellbird-Signature"
+    assert data["types"] == list(events.EVENT_TYPES) and data["signature_header"] == "Sellhawk-Signature"
     assert [e["type"] for e in data["events"]] == ["stage.changed"]
     assert data["events"][0]["data"]["to"] == "proposal" and data["events"][0]["data"]["by"] == "you"
     assert client.post("/api/events/test").status_code == 409        # no endpoint configured
 
 
 def test_the_agent_may_read_events_but_not_send_tests():
-    from sellbird.agent_policy import agent_may
+    from sellhawk.agent_policy import agent_may
     assert agent_may("GET", "/api/events")
     assert not agent_may("POST", "/api/events/test")

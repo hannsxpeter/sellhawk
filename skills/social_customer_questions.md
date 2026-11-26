@@ -10,7 +10,7 @@ Take one question the user hears all the time and answer it properly. The reader
 
 ## Where the question comes from
 
-In this order: the user's own replies and leads in Sellbird (what people actually asked), the questions on their mentions, then what the user tells you. Do not make up a question nobody asked.
+In this order: the user's own replies and leads in Sellhawk (what people actually asked), the questions on their mentions, then what the user tells you. Do not make up a question nobody asked.
 
 ## Shape
 

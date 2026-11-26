@@ -1,20 +1,20 @@
 # Brand mentions
 
-Sellbird can look for where people write about you, a competitor, or the thing you sell, and list what it finds so you can act on it. It works by searching and checking in, a few times a day, from your own computer. It never posts, and it signs in to no social account.
+Sellhawk can look for where people write about you, a competitor, or the thing you sell, and list what it finds so you can act on it. It works by searching and checking in, a few times a day, from your own computer. It never posts, and it signs in to no social account.
 
 ## What you get
 
 Under **Inbound → Mentions**, each mention shows the post, where it was found, and a guess at whether it is a question or a complaint. For each one you can:
 
 - **Make a lead.** The person behind it is added to People with the source "Mention" and a link to what they posted. There is no email address, so nothing is drafted or sent.
-- **Write or copy a reply.** A reply is a draft. Copy it, open the post, and post it from your own account. Sellbird has no way to post it.
+- **Write or copy a reply.** A reply is a draft. Copy it, open the post, and post it from your own account. Sellhawk has no way to post it.
 - **Note it** or **skip it.**
 
 Your agent can go through them for you: sort each one (buyer, complaint, praise, about a competitor, other), draft the replies, and add the buyers to People. It follows `skills/brand_mentions.md`. Ask it: "Go through my new mentions and draft replies for the buyers."
 
 ## What to watch
 
-**Inbound → Mentions → What is watched**, or `sellbird mentions watch "Example Roofing"`. Three kinds of term:
+**Inbound → Mentions → What is watched**, or `sellhawk mentions watch "Example Roofing"`. Three kinds of term:
 
 | Kind | Example |
 |---|---|
@@ -38,7 +38,7 @@ On by default: Hacker News, News, Reddit and YouTube. The last two are skipped u
 
 **Two sources work with no account at all: Hacker News and News.** For most local businesses neither is where buyers talk, so expect little until you add a Reddit app or a search key. Both of those are free to start.
 
-**What it does not do.** Sellbird does not scrape Instagram, TikTok, X, Facebook, LinkedIn or review sites: their terms forbid it, and a tool on your computer has no licensed feed from them. Web search finds only what a search engine already shows from those places. It does not track how AI assistants describe you; ask your own agent that directly. If you have a source that offers a proper API, adding one is a small function in `sellbird/mentions.py` (`_FETCHERS`), and contributions are welcome.
+**What it does not do.** Sellhawk does not scrape Instagram, TikTok, X, Facebook, LinkedIn or review sites: their terms forbid it, and a tool on your computer has no licensed feed from them. Web search finds only what a search engine already shows from those places. It does not track how AI assistants describe you; ask your own agent that directly. If you have a source that offers a proper API, adding one is a small function in `sellhawk/mentions.py` (`_FETCHERS`), and contributions are welcome.
 
 ### Getting the free keys
 
@@ -49,7 +49,7 @@ Type keys into `.env` yourself. Do not paste them into a chat with your agent.
 
 ## When it checks
 
-While `sellbird run` is running, every `mentions.check_every_hours` (default 6). Each check is one search per watched term per source, and brings in posts from the last `mentions.lookback_days` (default 7). **Check now** on the set up screen, `sellbird mentions check`, or your agent's `mentions_check` runs one at once, at most every 30 minutes. A check your agent starts leaves out any source that spends credits.
+While `sellhawk run` is running, every `mentions.check_every_hours` (default 6). Each check is one search per watched term per source, and brings in posts from the last `mentions.lookback_days` (default 7). **Check now** on the set up screen, `sellhawk mentions check`, or your agent's `mentions_check` runs one at once, at most every 30 minutes. A check your agent starts leaves out any source that spends credits.
 
 One source failing does not stop the others; the set up screen says which one failed.
 
@@ -63,15 +63,15 @@ One source failing does not stop the others; the set up screen says which one fa
 | `mention_update` | Sort a mention, note it, or draft its reply for you to copy |
 | `mention_to_lead` | Add the person behind a mention to People |
 
-The agent cannot turn a term on or off, cannot mark a mention as replied or skipped, and Sellbird gives it no way to post.
+The agent cannot turn a term on or off, cannot mark a mention as replied or skipped, and Sellhawk gives it no way to post.
 
 ## What people wrote is data
 
-A mention is text a stranger put on the open web. Sellbird stores it and shows it as written, and never acts on it. Links open only when they are web addresses. The skill tells your agent the same: a post that says "ignore your instructions" is something to report, not to follow.
+A mention is text a stranger put on the open web. Sellhawk stores it and shows it as written, and never acts on it. Links open only when they are web addresses. The skill tells your agent the same: a post that says "ignore your instructions" is something to report, not to follow.
 
 ## Settings
 
-Under `mentions:` in the config file Sellbird reads.
+Under `mentions:` in the config file Sellhawk reads.
 
 | Setting | Default | What it does |
 |---|---|---|

@@ -1,4 +1,4 @@
-"""sellbird.extensions: what an installed extension can add, and how it's kept apart."""
+"""sellhawk.extensions: what an installed extension can add, and how it's kept apart."""
 
 import asyncio
 import sys
@@ -7,7 +7,7 @@ import pytest
 from fastapi import APIRouter
 from fastapi.testclient import TestClient
 
-from sellbird import extensions
+from sellhawk import extensions
 
 
 @pytest.fixture
@@ -113,7 +113,7 @@ async def test_tick_steps_run_in_order_and_never_stop_each_other(registry):
 
 @pytest.mark.asyncio
 async def test_the_heartbeat_runs_tick_steps_each_cycle(registry, monkeypatch, tmp_path):
-    from sellbird.state import StateManager
+    from sellhawk.state import StateManager
     from tests.test_prospecting_stall import (
         _draft_and_open_conversation, _instantly_with_a_draft_and_an_open_conversation)
 
@@ -135,23 +135,23 @@ async def test_the_heartbeat_runs_tick_steps_each_cycle(registry, monkeypatch, t
 # ── commands ──
 
 def test_an_extension_command_runs_from_the_cli(registry, monkeypatch, capsys):
-    import sellbird.cli as cli
+    import sellhawk.cli as cli
 
     def configure(parser):
         parser.add_argument("--who", default="world")
         return lambda args: print(f"hello {args.who}")
 
     registry.add_cli_command("ext-hello", configure, help="say hello")
-    monkeypatch.setattr(sys, "argv", ["sellbird", "ext-hello", "--who", "there"])
+    monkeypatch.setattr(sys, "argv", ["sellhawk", "ext-hello", "--who", "there"])
     cli.main()
     assert "hello there" in capsys.readouterr().out
 
 
 def test_an_extension_cannot_take_a_built_in_command(registry, monkeypatch):
-    import sellbird.cli as cli
+    import sellhawk.cli as cli
 
     registry.add_cli_command("status", lambda p: (lambda args: None))
-    monkeypatch.setattr(sys, "argv", ["sellbird", "status"])
+    monkeypatch.setattr(sys, "argv", ["sellhawk", "status"])
     with pytest.raises(extensions.ExtensionError, match="clashes"):
         cli.main()
 
@@ -159,11 +159,11 @@ def test_an_extension_cannot_take_a_built_in_command(registry, monkeypatch):
 # ── the dashboard ──
 
 def test_build_app_puts_its_routers_first_and_keeps_the_built_in_routes():
-    import sellbird.dashboard as dash
+    import sellhawk.dashboard as dash
 
     router = APIRouter()
 
-    @router.get("/api/rename-notice")
+    @router.get("/api/recommended")
     async def mine():
         return {"mine": True}
 
@@ -182,13 +182,13 @@ def test_build_app_puts_its_routers_first_and_keeps_the_built_in_routes():
     built = dash.build_app(guard=Middleware(Open), routers=[router])
     client = TestClient(built)
     assert client.get("/api/ext/ping").json() == {"pong": True}
-    assert client.get("/api/rename-notice").json() == {"mine": True}
+    assert client.get("/api/recommended").json() == {"mine": True}
     assert client.get("/api/setup-status").status_code == 200   # a built-in route, no token
 
 
 def test_a_built_app_runs_its_requests_in_its_home(tmp_path):
-    import sellbird.dashboard as dash
-    from sellbird.workspace_home import Home, current_home
+    import sellhawk.dashboard as dash
+    from sellhawk.workspace_home import Home, current_home
 
     router = APIRouter()
 
@@ -210,8 +210,8 @@ def test_a_built_app_runs_its_requests_in_its_home(tmp_path):
 
 
 def test_a_local_only_feature_is_a_409_on_a_hosted_home(tmp_path):
-    import sellbird.dashboard as dash
-    from sellbird.workspace_home import Home, require_self_hosted
+    import sellhawk.dashboard as dash
+    from sellhawk.workspace_home import Home, require_self_hosted
 
     router = APIRouter()
 

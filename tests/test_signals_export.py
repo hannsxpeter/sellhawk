@@ -6,11 +6,11 @@ import tempfile
 import pytest
 import pytest_asyncio
 
-from sellbird.state import StateManager
-from sellbird.models.company import Company
-from sellbird.models.prospect import Prospect
-from sellbird.integrations.tech_detect import detect_tech
-from sellbird.export import collect_prospects, export_prospects_csv, to_csv, CSV_COLUMNS
+from sellhawk.state import StateManager
+from sellhawk.models.company import Company
+from sellhawk.models.prospect import Prospect
+from sellhawk.integrations.tech_detect import detect_tech
+from sellhawk.export import collect_prospects, export_prospects_csv, to_csv, CSV_COLUMNS
 
 
 @pytest_asyncio.fixture

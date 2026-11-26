@@ -1,8 +1,8 @@
-"""Opt-in check of Sellbird's Codex lockdown against the REAL installed Codex CLI.
+"""Opt-in check of Sellhawk's Codex lockdown against the REAL installed Codex CLI.
 
 Run after installing or upgrading Codex:
 
-    SELLBIRD_CODEX_CLI_TESTS=1 pytest tests/test_codex_cli_surface.py
+    SELLHAWK_CODEX_CLI_TESTS=1 pytest tests/test_codex_cli_surface.py
 
 No real credentials, no network, no inference. Two kinds of check:
 
@@ -10,8 +10,8 @@ No real credentials, no network, no inference. Two kinds of check:
   records exactly what the model would be given (tool list, instructions,
   input). Only the provider-identity and endpoint checks are relaxed so the
   mock can stand in for OpenAI; every other attestation runs unchanged.
-* Route: with Sellbird's checks NOT relaxed, hostile endpoint settings point
-  Codex at a localhost "attacker" that records every request. Sellbird must
+* Route: with Sellhawk's checks NOT relaxed, hostile endpoint settings point
+  Codex at a localhost "attacker" that records every request. Sellhawk must
   refuse before the (fake) login reaches it. A control run with the check
   disabled proves the attacker would otherwise receive the token.
 """
@@ -29,12 +29,12 @@ from pathlib import Path
 
 import pytest
 
-import sellbird.codex as hc
+import sellhawk.codex as hc
 
 pytestmark = pytest.mark.skipif(
-    os.environ.get("SELLBIRD_CODEX_CLI_TESTS") != "1" or not shutil.which("codex")
+    os.environ.get("SELLHAWK_CODEX_CLI_TESTS") != "1" or not shutil.which("codex")
     or sys.platform == "win32",
-    reason="set SELLBIRD_CODEX_CLI_TESTS=1 with the Codex CLI installed",
+    reason="set SELLHAWK_CODEX_CLI_TESTS=1 with the Codex CLI installed",
 )
 
 EVIL_MCP = """
@@ -138,7 +138,7 @@ def mock_codex(monkeypatch, tmp_path):
             'model_provider = "mock"\n' + body
             + "\n[model_providers.mock]\nname = \"mock\"\n"
             + f"base_url = \"http://127.0.0.1:{port}/v1\"\nwire_api = \"responses\"\n"
-            + "env_key = \"SELLBIRD_MOCK_KEY\"\nrequest_max_retries = 0\nstream_max_retries = 0\n"
+            + "env_key = \"SELLHAWK_MOCK_KEY\"\nrequest_max_retries = 0\nstream_max_retries = 0\n"
             + "supports_websockets = false\n"
             + extra["toml"]
         )
@@ -153,8 +153,8 @@ def mock_codex(monkeypatch, tmp_path):
         {k: v for k, v in config.items() if k != "model_providers"}))
     monkeypatch.setattr(hc, "REQUIRED_SETTINGS", {
         k: v for k, v in hc.REQUIRED_SETTINGS.items() if k != "forced_login_method"})
-    monkeypatch.setattr(hc, "ENV_ALLOWLIST", hc.ENV_ALLOWLIST | {"SELLBIRD_MOCK_KEY"})
-    monkeypatch.setenv("SELLBIRD_MOCK_KEY", "not-a-real-key")
+    monkeypatch.setattr(hc, "ENV_ALLOWLIST", hc.ENV_ALLOWLIST | {"SELLHAWK_MOCK_KEY"})
+    monkeypatch.setenv("SELLHAWK_MOCK_KEY", "not-a-real-key")
     # ChatGPT account checks need the real backend; they are unit-tested.
     async def skip_account(self, server, deadline):
         return None
@@ -232,9 +232,9 @@ async def test_real_cli_all_catalog_models_and_config_defaults(
         mock_codex, monkeypatch, tmp_path, selection):
     import yaml
 
-    from sellbird.brain import Brain
-    from sellbird.config import load_config
-    from sellbird.state import StateManager
+    from sellhawk.brain import Brain
+    from sellhawk.config import load_config
+    from sellhawk.state import StateManager
 
     monkeypatch.setattr(hc, "DISABLED_FEATURES",
                         hc.DISABLED_FEATURES + ("enable_request_compression",))
@@ -243,7 +243,7 @@ async def test_real_cli_all_catalog_models_and_config_defaults(
     models = list(catalog) if selection == "explicit" else [None]
     for model in models:
         mock_codex.requests.clear()
-        config_data = yaml.safe_load((Path(__file__).parents[1] / "sellbird.yaml").read_text())
+        config_data = yaml.safe_load((Path(__file__).parents[1] / "sellhawk.yaml").read_text())
         config_data["brain"] = {"provider": "codex"}
         if selection != "omitted":
             config_data["brain"]["model"] = model if selection == "explicit" else (
@@ -352,7 +352,7 @@ async def test_real_cli_hostile_route_never_receives_the_login(attacker, route, 
             await client.run("ping", timeout=60)
         else:
             await client.read_rate_limits(timeout=60)
-    # Refused by Sellbird's attestation, or by Codex rejecting the config
+    # Refused by Sellhawk's attestation, or by Codex rejecting the config
     # outright (it refuses to let `openai` be redefined).
     assert err.value.kind in ("isolation", "protocol")
     assert attacker.requests == []
@@ -362,7 +362,7 @@ async def test_real_cli_hostile_route_never_receives_the_login(attacker, route, 
 @pytest.mark.asyncio
 async def test_real_cli_control_attacker_would_see_the_login(attacker, monkeypatch):
     """Control: with the route check disabled, the same hostile config does
-    deliver the (fake) login to the attacker — so the test above is real."""
+    deliver the (fake) login to the attacker, so the test above is real."""
     top, tables = _hostile_routes(attacker.base)["chatgpt_base_url"]
     attacker.configure(top, tables)
     monkeypatch.setattr(hc, "attest_effective_config", lambda response, model_catalog_path="": [])
@@ -401,7 +401,7 @@ def _bundled_catalog(tmp_path) -> dict:
 @pytest.mark.asyncio
 async def test_real_cli_unlisted_toolless_model_only_runs_when_explicit(
         mock_codex, monkeypatch, tmp_path):
-    """A live catalog may stop *listing* a tool-less model. Sellbird must not
+    """A live catalog may stop *listing* a tool-less model. Sellhawk must not
     pick it on its own, but must run it, with no tools, when it is named."""
     monkeypatch.setattr(hc, "DISABLED_FEATURES",
                         hc.DISABLED_FEATURES + ("enable_request_compression",))

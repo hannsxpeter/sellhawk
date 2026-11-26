@@ -11,12 +11,12 @@ import tempfile
 import pytest
 import pytest_asyncio
 
-from sellbird import pipeline as P
-from sellbird.collectors import discover as D
-from sellbird.config import load_config
-from sellbird.models import Company
-from sellbird.signals import SIGNAL_CATALOG, seed_signal_catalog
-from sellbird.state import StateManager
+from sellhawk import pipeline as P
+from sellhawk.collectors import discover as D
+from sellhawk.config import load_config
+from sellhawk.models import Company
+from sellhawk.signals import SIGNAL_CATALOG, seed_signal_catalog
+from sellhawk.state import StateManager
 
 
 @pytest_asyncio.fixture
@@ -118,7 +118,7 @@ def chain(monkeypatch):
                     collector="profile", value_text="wordpress")
             return len(companies), "run-x"
 
-        monkeypatch.setattr("sellbird.collectors.profile.profile_companies",
+        monkeypatch.setattr("sellhawk.collectors.profile.profile_companies",
                             fake_profile)
         return seen
 
@@ -146,7 +146,7 @@ async def test_discovery_flows_straight_into_profiling(state, config, chain):
 @pytest.mark.asyncio
 async def test_profiling_sweeps_up_what_an_earlier_run_left(state, config, chain):
     """The stages join through a query, so a run interrupted before profiling
-    is finished by the next one — nothing has to remember anything."""
+    is finished by the next one, nothing has to remember anything."""
     await state.add_company(Company(name="Left Over", domain="leftover.com"))
     seen = chain([D.Business(name="Baker", domain="baker.com", provider="fake")])
 
@@ -194,7 +194,7 @@ async def test_a_failing_profile_stage_does_not_lose_the_discovery(
 
     async def boom(state, companies, **_):
         raise RuntimeError("network gone")
-    monkeypatch.setattr("sellbird.collectors.profile.profile_companies", boom)
+    monkeypatch.setattr("sellhawk.collectors.profile.profile_companies", boom)
 
     report = await P.run_prospecting(state, config, "fake",
                                      [D.DiscoveryQuery(term="roofer")])
@@ -221,7 +221,7 @@ async def test_state_summary_reports_the_profiling_backlog(state):
 
 @pytest.mark.asyncio
 async def test_a_false_boolean_is_recorded_but_not_in_the_cohort(state):
-    """PROFILE records RUNNING_GOOGLE_ADS=0 for everyone it checks — knowing
+    """PROFILE records RUNNING_GOOGLE_ADS=0 for everyone it checks, knowing
     you looked is worth keeping, and a later 0→1 flip is a real event. But
     "companies running Google Ads" must not silently mean "companies we
     checked for Google Ads", which is everyone.
@@ -245,7 +245,7 @@ async def test_a_false_boolean_is_recorded_but_not_in_the_cohort(state):
 
 @pytest.mark.asyncio
 async def test_text_signals_count_by_their_existence(state):
-    """INCUMBENT_AGENCY has no numeric value — the row IS the finding."""
+    """INCUMBENT_AGENCY has no numeric value: the row IS the finding."""
     cid = await state.add_company(Company(name="Baker", domain="a.com"))
     await state.add_observation("INCUMBENT_AGENCY", company_id=cid,
                                 collector="profile", value_text="Studio3")
@@ -266,7 +266,7 @@ async def test_a_cohort_reflects_the_newest_observation(state):
                                 observed_at="2026-06-01 00:00:00")
     assert await state.cohort(["RUNNING_GOOGLE_ADS"]) == []
 
-    # Both observations survive — that time series is the durable asset.
+    # Both observations survive: that time series is the durable asset.
     assert len(await state.get_observations(company_id=cid)) == 2
 
 

@@ -6,11 +6,11 @@ import json
 import pytest
 import pytest_asyncio
 
-from sellbird.state import StateManager
-from sellbird.models.company import Company
-from sellbird.models.prospect import Prospect
-from sellbird.models.campaign import Campaign, EmailStep
-from sellbird.models.conversation import Conversation, Message
+from sellhawk.state import StateManager
+from sellhawk.models.company import Company
+from sellhawk.models.prospect import Prospect
+from sellhawk.models.campaign import Campaign, EmailStep
+from sellhawk.models.conversation import Conversation, Message
 
 
 @pytest_asyncio.fixture
@@ -60,7 +60,7 @@ async def test_add_company_same_id_is_ignored(state):
     c1 = Company(id="fixed-id", name="First", domain="first.com")
     c2 = Company(id="fixed-id", name="Second", domain="second.com")
     await state.add_company(c1)
-    await state.add_company(c2)  # INSERT OR IGNORE — must not raise
+    await state.add_company(c2)  # INSERT OR IGNORE: must not raise
     fetched = await state.get_company("fixed-id")
     assert fetched.name == "First"  # original row preserved
 
@@ -187,7 +187,7 @@ async def test_update_campaign_fields(state):
 async def test_conversation_add_and_fetch(state):
     convo = Conversation(
         id="", prospect_id="p1", campaign_id="c1",
-        thread=[Message(sender="sellbird", content="Hi")],
+        thread=[Message(sender="sellhawk", content="Hi")],
         intent="interested",
     )
     vid = await state.add_conversation(convo)

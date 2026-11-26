@@ -7,8 +7,8 @@ from datetime import date, timedelta
 
 import pytest
 
-import sellbird.dashboard as dash
-from sellbird.state import StateManager
+import sellhawk.dashboard as dash
+from sellhawk.state import StateManager
 from tests.test_dashboard_signals import client  # noqa: F401
 
 

@@ -2,8 +2,8 @@
 
 import pytest
 
-from sellbird.config import SellbirdConfig
-from sellbird.humanize import humanize, humanizer_enabled, load_skill
+from sellhawk.config import SellhawkConfig
+from sellhawk.humanize import humanize, humanizer_enabled, load_skill
 
 
 class FakeBrain:
@@ -58,7 +58,7 @@ async def test_good_rewrite_is_used(skill):
 
 @pytest.mark.parametrize("bad", [
     {"subject": "after five", "body": "Hi there, who picks up after five?"},           # lost merge var
-    {"subject": "after five", "body": "Hi {{first_name}} — who picks up after five?"},  # new em dash
+    {"subject": "after five", "body": "Hi {{first_name}} \u2014 who picks up after five?"},  # new em dash
     {"subject": "", "body": "Hi {{first_name}}, who picks up after five?"},            # dropped subject
     {"subject": "after five", "body": "Hi {{first_name}}, " + "word " * 40},          # much longer
     {"subject": "after five", "body": "As an AI, I rewrote it: Hi {{first_name}}, who picks up?"},  # meta-text
@@ -87,7 +87,7 @@ async def test_reply_without_subject(skill):
 
 @pytest.mark.asyncio
 async def test_installed_skill_alone_does_not_turn_it_on(skill):
-    # Installing the skill for Claude Code must not change what Sellbird sends.
+    # Installing the skill for Claude Code must not change what Sellhawk sends.
     brain = FakeBrain({"subject": "after five", "body": "Hi {{first_name}}, who picks up?"})
     assert await humanize(brain, [DRAFT], "writer", path=skill) == [DRAFT]
     assert brain.prompts == []
@@ -108,7 +108,7 @@ def _config(**extra):
             "titles": ["CEO"], "geography": ["US"],
         },
     }
-    return SellbirdConfig(**{**base, **extra})
+    return SellhawkConfig(**{**base, **extra})
 
 
 def test_humanizer_is_off_by_default():
