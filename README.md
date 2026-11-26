@@ -1,11 +1,13 @@
 # Sellhawk
 
-<p align="center"><strong>The open-source outreach platform that lives inside your agent, on your Claude or ChatGPT plan.</strong></p>
+<p align="center"><strong>The open-source local marketing agent for brick-and-mortar businesses in the US and Canada, on your Claude or ChatGPT plan.</strong></p>
 
 <p align="center">
-Sellhawk finds companies that need what you sell, finds the person who decides, checks their email address, writes each one a personal cold email, sends it and handles the replies.
-It runs on your own machine, and by default nothing goes out until you approve it.
+Sellhawk helps a restaurant, salon, clinic, gym or shop bring customers back, collect reviews, answer neighbours asking for a recommendation, and build partnerships with businesses nearby.
+It runs on your own machine, checks consent in code before anything is sent, and by default nothing goes out until you approve it.
 </p>
+
+> **Status: early (0.1).** Sellhawk still runs the engine it started from: it finds local businesses, writes to the person who decides, sends from your own mailbox and handles the replies. The consumer side (customer import, consent per channel, review requests, win-back, neighbourhood listening, the US and Canada rules) is being built in the order on the [roadmap](docs/roadmap.md), consent checks first. The research behind it is in [docs/research/local-customers.md](docs/research/local-customers.md).
 
 ## Inside your agent
 
@@ -178,4 +180,6 @@ See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 ## License
 
-Sellhawk is licensed under the [GNU Affero General Public License v3.0](LICENSE). Upstream attribution is in [NOTICE](NOTICE).
+Sellhawk is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+
+<sub>Sellhawk began as a fork of [Sellbird](https://github.com/ethanplusai/sellbird) by Ethan Rogers. Its notices are kept in [NOTICE](NOTICE).</sub>

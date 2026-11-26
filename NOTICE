@@ -1,3 +1,17 @@
+Sellhawk
+Copyright (C) 2026 the Sellhawk authors
+
+Sellhawk is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License, version 3 only
+(AGPL-3.0-only). The full text is in the LICENSE file.
+
+Sellhawk is a modified version of Sellbird. Modification began on
+2026-11-26 from Sellbird 0.5.0 (upstream commit 8c743f1,
+https://github.com/ethanplusai/sellbird). The changes are recorded in this
+repository's git history. Sellbird's own notices follow, unchanged.
+
+================================================================================
+
 Sellbird (formerly Harvey)
 Copyright (C) 2026 Voyage Studios LLC, doing business as Sellbird, and the Sellbird contributors
 
