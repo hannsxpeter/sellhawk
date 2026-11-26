@@ -3,9 +3,13 @@ has open (dashboard_navigate): no link, no code, nothing posted in the chat.
 With no tab open, the card asks the host to open a one-use sign-in link
 (never on Codex, which drops them) and believes it only once a tab answers;
 otherwise it shows one quiet line. Runs the real card page in Chromium;
-skipped where Playwright has no browser."""
+those tests are skipped where Playwright has no browser. The check on the
+card's mark also runs the card's own script under node, with no browser."""
 
 import json
+import re
+import shutil
+import subprocess
 
 import pytest
 
@@ -194,3 +198,84 @@ def test_a_pass_for_somewhere_other_than_this_machines_dashboard_is_ignored(brow
     page.wait_for_timeout(500)
     assert hits == []
     page.close()
+
+
+def _mark_in_the_svg_file():
+    svg = (mcp_cards.WEB / "sellhawk-mark.svg").read_text(encoding="utf-8")
+    return {"viewBox": re.search(r'viewBox="([^"]+)"', svg).group(1),
+            "paths": [{"d": re.search(r' d="([^"]+)"', svg).group(1),
+                       "fill-rule": re.search(r'fill-rule="([^"]+)"', svg).group(1)}]}
+
+
+# Only the DOM the card's script touches while it loads and renders a card with
+# no rows. It prints what each .mark element attached to #card carries. Timers
+# never fire, so node exits as soon as the render is done.
+NODE_DOM = r"""
+const source = require('fs').readFileSync(0, 'utf8');
+function element(tag) {
+  const e = {tag, attrs: {}, children: [], text: '', className: '', style: {setProperty() {}},
+    setAttribute(k, v) { this.attrs[k] = String(v); },
+    getAttribute(k) { return Object.prototype.hasOwnProperty.call(this.attrs, k) ? this.attrs[k] : null; },
+    appendChild(c) { this.children.push(c); return c; },
+    addEventListener() {},
+    getBoundingClientRect() { return {height: 0}; },
+    get childNodes() { return this.children; },
+    get textContent() { return this.text; },
+    set textContent(v) { this.text = String(v); this.children = []; }};
+  e.classList = {add(c) { e.className = (e.className + ' ' + c).trim(); }};
+  return e;
+}
+const card = element('div');
+globalThis.document = {
+  documentElement: element('html'), body: element('body'),
+  getElementById: id => id === 'card' ? card : null,
+  createElement: element, createElementNS: (ns, tag) => element(tag),
+  createTextNode: text => { const n = element('#text'); n.text = String(text); return n; }};
+globalThis.window = {parent: {postMessage() {}}, addEventListener() {}};
+globalThis.setTimeout = () => 0;
+new Function(source)();
+window.sellhawkRender({title: 'Example'});
+const all = e => [e, ...e.children.flatMap(all)];
+const classes = e => ((e.getAttribute('class') || '') + ' ' + e.className).split(/\s+/);
+process.stdout.write(JSON.stringify(all(card).filter(e => classes(e).includes('mark')).map(e => ({
+  viewBox: e.getAttribute('viewBox'),
+  paths: all(e).filter(p => p.tag === 'path').map(p => (
+    {d: p.getAttribute('d'), 'fill-rule': p.getAttribute('fill-rule')}))}))));
+"""
+
+
+def test_the_mark_the_cards_script_builds_is_the_same_path_without_a_browser(tmp_path):
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node is not on PATH, so the card's script cannot run without a browser")
+    scripts = re.findall(r"<script>(.*?)</script>", mcp_cards.card_html(), re.S)
+    assert len(scripts) == 1
+    dom = tmp_path / "card_dom.js"
+    dom.write_text(NODE_DOM, encoding="utf-8")
+    try:
+        run = subprocess.run([node, str(dom)], input=scripts[0], capture_output=True, text=True,
+                             encoding="utf-8", timeout=30)
+    except subprocess.TimeoutExpired:
+        pytest.fail("waited 30s for node to run the card's script and render its mark")
+    assert run.returncode == 0, run.stderr
+    assert json.loads(run.stdout) == [_mark_in_the_svg_file()]
+
+
+def test_the_mark_a_card_renders_is_the_same_path(browser):
+    from sellhawk.desktop.tray import BIRD_BOX, BIRD_PATH
+
+    wanted = _mark_in_the_svg_file()
+    page = browser.new_page()
+    try:
+        page.set_content(mcp_cards.card_html())
+        page.evaluate("window.sellhawkRender({title: 'Example'})")
+        # Only what the .mark element on the page carries, never the card's source text.
+        marks = page.locator(".mark").evaluate_all(
+            """els => els.map(e => ({viewBox: e.getAttribute('viewBox'),
+                 paths: [...e.querySelectorAll('path')].map(p => (
+                     {d: p.getAttribute('d'), 'fill-rule': p.getAttribute('fill-rule')}))}))""")
+    finally:
+        page.close()
+    assert marks == [wanted]
+    assert marks[0]["paths"][0]["d"] == BIRD_PATH
+    assert marks[0]["viewBox"] == f"0 0 {BIRD_BOX[0]} {BIRD_BOX[1]}"

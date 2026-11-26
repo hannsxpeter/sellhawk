@@ -44,13 +44,28 @@ def test_every_old_tab_is_still_a_screen_inside_one_of_the_seven_places():
         assert f'<div id="{screen}" class="section' in html, screen
 
 
-def test_the_logo_is_the_signature_file_not_typed_text(client):
+# check-tests: allow renamed from test_the_logo_is_the_signature_file_not_typed_text
+def test_the_logo_is_the_mark_beside_the_name_as_text(client):
     html = client.get("/").text
-    assert "<span>sellhawk</span>" not in html
-    assert 'class="logo"' in html
-    svg = client.get("/static/sellhawk-signature.svg")
+    assert 'aria-label="Sellhawk, Today"' in html
+    assert ('<span class="logo" role="img" aria-label="Sellhawk">'
+            '<span class="logo-mark"></span>Sellhawk</span>') in html
+    svg = client.get("/static/sellhawk-mark.svg")
     assert svg.status_code == 200 and svg.headers["content-type"].startswith("image/svg+xml")
-    assert "sellhawk-signature.svg" in client.get("/static/app.css").text
+    assert "<text" not in svg.text and "stroke" not in svg.text and "Gradient" not in svg.text
+    assert "mask: url('/static/sellhawk-mark.svg')" in client.get("/static/app.css").text
+    assert 'rel="icon" href="/static/sellhawk-mark.svg"' in html
+
+
+# The copy a card renders is checked in test_card_host.py, in a browser.
+def test_every_copy_of_the_mark_is_the_same_path():
+    from sellhawk.desktop.tray import BIRD_BOX, BIRD_PATH
+
+    svg = (WEB / "sellhawk-mark.svg").read_text(encoding="utf-8")
+    assert re.findall(r' d="([^"]+)"', svg) == [BIRD_PATH]
+    assert f'viewBox="0 0 {BIRD_BOX[0]} {BIRD_BOX[1]}"' in svg
+    # the eye is a hole only under the even-odd rule
+    assert 'fill-rule="evenodd"' in svg
 
 
 def test_the_layout_sizes_to_its_own_frame():

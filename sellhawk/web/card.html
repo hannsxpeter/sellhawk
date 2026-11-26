@@ -50,7 +50,7 @@ body { font: 400 14px/20px var(--sans); color: var(--fg); -webkit-font-smoothing
 
 /* Header: the mark, the title, a count, the date. */
 .hd { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
-.mark { width: 20px; height: 13px; flex: none; color: var(--accent); }
+.mark { width: 19px; height: 18px; flex: none; color: var(--accent); }
 .hd h1 { font: 600 14px/20px var(--sans); letter-spacing: -0.005em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center;
   font: 600 11.5px/20px var(--sans); background: var(--wait-bg); color: var(--wait); font-variant-numeric: tabular-nums; }
@@ -178,7 +178,7 @@ button:disabled { opacity: .55; cursor: default; }
   }
   // The Sellhawk mark (sellhawk-mark.svg), in the accent colour.
   function mark() {
-    return svg('0 0 1040 640', 'mark', [['path', {fill: 'currentColor', d: 'M83 0C246 47 417 91 562 157C676 209 759 258 744 314C813 257 896 239 954 301L1034 324L944 359C837 473 731 548 563 524C506 516 464 513 427 519L0 631L407 406L224 213L555 300L420 428L663 315L630 281C407 229 264 237 83 0Z'}]]);
+    return svg('0 0 608 560', 'mark', [['path', {fill: 'currentColor', 'fill-rule': 'evenodd', d: 'M0 554C106 472 120 378 104 284C76 120 190 0 358 0C434 0 492 28 524 72C578 80 608 128 604 194C600 254 574 306 526 344C536 280 512 248 460 242L362 238C356 338 412 416 528 460C476 530 396 562 294 558C328 534 348 504 354 468C268 530 146 562 0 554ZM314 104L474 130C458 170 430 188 394 186C356 184 326 152 314 104Z'}]]);
   }
   var STROKE = {fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round'};
   function lock() {

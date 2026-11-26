@@ -204,13 +204,31 @@ def test_icon_is_the_bird_with_a_state_dot():
         image = make_icon("running", dark)
         assert image.size == (64, 64)
         pixels = [image.getpixel((x, y)) for x in range(64) for y in range(64)]
-        # the swallow is drawn in the bar's contrasting color, not one flat circle
+        # the mark is drawn in the bar's contrasting color, not one flat circle
         assert sum(1 for p in pixels if p[3] > 200 and p[:3] == bird) > 200
         assert image.getpixel((0, 0))[3] == 0
     for state, hex_ in COLORS.items():
         dot = make_icon(state, True).getpixel((47, 47))
         want = tuple(int(hex_[i:i + 2], 16) for i in (1, 3, 5))
         assert all(abs(a - b) < 12 for a, b in zip(dot[:3], want)), state
+
+
+def test_the_eye_is_a_hole_in_the_head():
+    pytest.importorskip("PIL")
+    from sellhawk.desktop.tray import BIRD_BOX, bird_points, draw_icon
+
+    shapes = bird_points(*BIRD_BOX)
+    assert len(shapes) == 2
+    for pts in shapes:  # sampled points stay inside the view box
+        assert all(0 <= x <= BIRD_BOX[0] and 0 <= y <= BIRD_BOX[1] for x, y in pts)
+    # a large square image: the mark is centered and fills the width or 94% of the height
+    size = 560
+    unit = min(size / BIRD_BOX[0], size * 0.94 / BIRD_BOX[1])
+    left, top = (size - BIRD_BOX[0] * unit) / 2, (size - BIRD_BOX[1] * unit) / 2
+    image = draw_icon("running", True, size, size)
+    at = lambda x, y: image.getpixel((round(left + x * unit), round(top + y * unit)))  # noqa: E731
+    assert at(394, 150)[3] == 0                                 # inside the eye
+    assert at(200, 150)[:3] == (255, 255, 255) and at(200, 150)[3] == 255   # the head
 
 
 def test_menubar_icon_is_drawn_at_retina_size():
@@ -222,6 +240,6 @@ def test_menubar_icon_is_drawn_at_retina_size():
     from sellhawk.desktop.tray import MENUBAR_PT, menubar_png
 
     image = Image.open(io.BytesIO(menubar_png("running", True)))
-    # twice the point size, and wider than tall like the bird, not a 22px square
+    # twice the point size, and wider than tall to fit the dot, not a 22px square
     assert image.size == (MENUBAR_PT[0] * 2, MENUBAR_PT[1] * 2)
     assert image.size[0] > image.size[1]

@@ -36,7 +36,7 @@ Under **Set up** there are also: **Email records** (MX, SPF, DKIM and DMARC on e
 Addresses work as links: `#outbox`, `#signals`, `#calendar` and so on open that screen.
 
 
-Colour is kept for meaning. The surface is neutral and a single accent, Pale Harbor, marks what you can act on and where you are. Status (waiting on you, done, failed, running) uses the same small set of tones on every screen. Figures are tabular, so columns line up and a changing number does not shift the layout. The logo is the real signature file, `sellhawk/web/sellhawk-signature.svg`, drawn as a mask so it takes the text colour.
+Colour is kept for meaning. The surface is neutral and a single accent, Pale Harbor, marks what you can act on and where you are. Status (waiting on you, done, failed, running) uses the same small set of tones on every screen. Figures are tabular, so columns line up and a changing number does not shift the layout. The logo is the hawk mark, `sellhawk/web/sellhawk-mark.svg`, drawn as a mask in the accent colour beside the name set as text in Geist. The same mark is the favicon, the mark on agent cards and the menu-bar icon. On a dark system theme the favicon turns lighter in browsers that apply the SVG's own dark-mode style (Chrome, Edge and Firefox); Safari keeps the default colour.
 
 Appearance has three states: `auto` follows your OS and is the default, or pick light or dark under Set up. Dark mode uses the same layout with a different set of colour tokens.
 

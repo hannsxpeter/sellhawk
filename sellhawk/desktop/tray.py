@@ -275,16 +275,19 @@ def menu_items(status: TrayStatus, autostart_on: bool) -> list[MenuRow]:
     return rows
 
 
-# The Sellhawk swallow, from sellhawk/web/sellhawk-mark.svg (viewBox 0 0 1040 640).
-BIRD_PATH = ("M83 0C246 47 417 91 562 157C676 209 759 258 744 314C813 257 896 239 954 301"
-             "L1034 324L944 359C837 473 731 548 563 524C506 516 464 513 427 519L0 631L407 406"
-             "L224 213L555 300L420 428L663 315L630 281C407 229 264 237 83 0Z")
-BIRD_BOX = (1040, 640)
+# The Sellhawk mark, from sellhawk/web/sellhawk-mark.svg (viewBox 0 0 608 560).
+# The first subpath is the head; any later one is a hole in it (the eye).
+BIRD_PATH = ("M0 554C106 472 120 378 104 284C76 120 190 0 358 0C434 0 492 28 524 72C578 80 608 128 604 194"
+             "C600 254 574 306 526 344C536 280 512 248 460 242L362 238C356 338 412 416 528 460"
+             "C476 530 396 562 294 558C328 534 348 504 354 468C268 530 146 562 0 554Z"
+             "M314 104L474 130C458 170 430 188 394 186C356 184 326 152 314 104Z")
+BIRD_BOX = (608, 560)
 
 
 def bird_points(width: float, height: float, x0: float = 0, y0: float = 0,
-                steps: int = 16) -> list[tuple[float, float]]:
-    """BIRD_PATH as a polygon scaled into a width x height box at (x0, y0).
+                steps: int = 16) -> list[list[tuple[float, float]]]:
+    """BIRD_PATH as one polygon per subpath, scaled into a width x height box
+    at (x0, y0).
 
     The path only uses absolute M, L, C and Z, so curves are sampled here
     instead of pulling in an SVG renderer."""
@@ -292,7 +295,7 @@ def bird_points(width: float, height: float, x0: float = 0, y0: float = 0,
 
     tokens = re.findall(r"[MLCZ]|-?\d+(?:\.\d+)?", BIRD_PATH)
     sx, sy = width / BIRD_BOX[0], height / BIRD_BOX[1]
-    pts: list[tuple[float, float]] = []
+    shapes: list[list[tuple[float, float]]] = []
     cur = (0.0, 0.0)
     i, cmd = 0, ""
     while i < len(tokens):
@@ -301,10 +304,12 @@ def bird_points(width: float, height: float, x0: float = 0, y0: float = 0,
             i += 1
             if cmd == "Z":
                 continue
+            if cmd == "M":
+                shapes.append([])
         nums = lambda n: [float(t) for t in tokens[i:i + n]]  # noqa: E731
         if cmd in "ML":
             cur = tuple(nums(2))
-            pts.append(cur)
+            shapes[-1].append(cur)
             i += 2
         elif cmd == "C":
             x1, y1, x2, y2, x3, y3 = nums(6)
@@ -312,13 +317,14 @@ def bird_points(width: float, height: float, x0: float = 0, y0: float = 0,
             for k in range(1, steps + 1):
                 t = k / steps
                 u = 1 - t
-                pts.append((u**3 * x0_ + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t**3 * x3,
-                            u**3 * y0_ + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t**3 * y3))
+                shapes[-1].append(
+                    (u**3 * x0_ + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t**3 * x3,
+                     u**3 * y0_ + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t**3 * y3))
             cur = (x3, y3)
             i += 6
         else:
             i += 1
-    return [(x0 + x * sx, y0 + y * sy) for x, y in pts]
+    return [[(x0 + x * sx, y0 + y * sy) for x, y in pts] for pts in shapes]
 
 
 def _dark_bar() -> bool:
@@ -334,12 +340,12 @@ def _dark_bar() -> bool:
 
 
 # The menu-bar icon in points (macOS draws it at 2x on Retina screens).
-MENUBAR_PT = (31, 18)
+MENUBAR_PT = (25, 18)
 
 
 def draw_icon(state: str, dark: bool, width: int, height: int):
-    """The Sellhawk swallow filling a width x height pixel image, with a dot
-    in the state's color tucked under the wing. Drawn at 4x and shrunk, so
+    """The Sellhawk mark filling a width x height pixel image, with a dot
+    in the state's color at its lower right. Drawn at 4x and shrunk, so
     edges stay smooth at any size."""
     from PIL import Image, ImageDraw
 
@@ -348,14 +354,17 @@ def draw_icon(state: str, dark: bool, width: int, height: int):
     image = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     r, ring = h * 0.14, h * 0.05
-    # the bird fills the height; a wide image keeps the dot clear of it on the right
-    unit = min((w - (r if w > h * 1.4 else 0)) / BIRD_BOX[0], h * 0.94 / BIRD_BOX[1])
+    # the mark fills the height; a wide image keeps the dot clear of it on the right
+    wide = w > h * 1.3
+    unit = min((w - (r if wide else 0)) / BIRD_BOX[0], h * 0.94 / BIRD_BOX[1])
     bird_w, bird_h = BIRD_BOX[0] * unit, BIRD_BOX[1] * unit
-    left, top = 0 if w > h * 1.4 else (w - bird_w) / 2, (h - bird_h) / 2
-    draw.polygon(bird_points(bird_w, bird_h, left, top),
-                 fill="#ffffff" if dark else "#1d1d1f")
+    left, top = 0 if wide else (w - bird_w) / 2, (h - bird_h) / 2
+    head, *holes = bird_points(bird_w, bird_h, left, top)
+    draw.polygon(head, fill="#ffffff" if dark else "#1d1d1f")
+    for shape in holes:
+        draw.polygon(shape, fill=(0, 0, 0, 0))
     cx, cy = w - r - ring, h - r - ring
-    hole = Image.new("L", (w, h), 0)  # a clear ring so the dot reads over the wing
+    hole = Image.new("L", (w, h), 0)  # a clear ring so the dot reads over the mark
     ImageDraw.Draw(hole).ellipse((cx - r - ring, cy - r - ring, cx + r + ring, cy + r + ring),
                                  fill=255)
     image.paste((0, 0, 0, 0), mask=hole)
