@@ -59,8 +59,8 @@ You set where your business is (country, and state or province) once, in setup. 
 | Texts | Express written consent | Express consent (Sellhawk does not use implied consent for texts) |
 | Every message carries | Business name, postal address, opt-out | Business name, mailing address, and a phone number, email or web address; an unsubscribe that keeps working for 60 days |
 | Opt-outs honoured | At once (the law allows 10 business days) | At once (the law allows 10 business days) |
-| Text hours, on the customer's clock | 08:00 to 21:00; 08:00 to 20:00 in Florida, Oklahoma and Maryland | Weekdays 09:00 to 21:30, weekends 10:00 to 18:00 (the CRTC telemarketing hours, used as the safe default) |
-| Text frequency | At most 3 marketing texts in 24 hours in Florida, Oklahoma and Maryland (Sellhawk counts every marketing text) | No legal cap; your own cap applies |
+| Text hours, on the customer's clock | 09:00 to 20:00 everywhere, the strictest state hours (Connecticut's start; the Florida, Oklahoma and Maryland end). Federal law alone allows 08:00 to 21:00 | Weekdays 09:00 to 21:30, weekends 10:00 to 18:00 (the CRTC telemarketing hours, used as the safe default) |
+| Text frequency | At most 3 marketing texts in 24 hours everywhere, the Florida, Oklahoma and Maryland limit (Sellhawk counts every marketing text) | No legal cap; your own cap applies |
 | Language | English | French for customers in Quebec (bilingual allowed with French at least as prominent) |
 | Asking for consent | Clear, written, not a condition of purchase | Must say why, who is asking, how to reach you, and that they can withdraw at any time; never a pre-ticked box |
 | Partner outreach (B2B) | Allowed with an opt-out and postal address | Only to an address the business published itself (not a guessed one) with no "no unsolicited mail" note, about their line of work; or one message on a named referral |
@@ -83,26 +83,26 @@ The consent and sending checks come first, because every route to a customer, ne
 | 1 | Remove the outside sequencer integration, the only way an email could leave without the per-message check | high |
 | 2 | People get a kind (consumer or business contact, defaulting to consumer) and an indexed phone key | high |
 | 3 | The consent ledger gains email, a basis and an expiry | high |
-| 4 | Where each person is (country, state or province) and the rules for each place: US federal, the Florida, Oklahoma and Maryland text limits, Canada and Quebec | high |
-| 5 | One opt-out stops every channel, in one transaction | high |
-| 6 | One egress module: the only code that calls a mail or text provider, with the basis and place rules as its last step | high |
+| 4 | Where each person is (country, state or province) and the rules for each place: one strict US text profile that state entries can only tighten, Canada and Quebec, each rule dated; health businesses marked in setup | high |
+| 5 | One opt-out stops every channel, in one transaction, and reading cannot miss one: from the last confirmed position, a catch-up after downtime, no send without a fresh read, French stop words, `sellhawk retire` | high |
+| 6 | One egress module: the only code that sends a person's details anywhere (mail, texts, checkers, webhooks), with the basis, place and content rules (subject lines, treatment words, Quebec French, agreements for health businesses, approval age) as its last step | high |
 
 ### Keep them coming back
 
 | # | Step | Risk |
 |---|---|---|
-| 7 | Visits, and customer import from a POS or booking export (CSV) with an attestation you type, worded for your country | high |
-| 8 | Lifecycle scheduler: review requests, win-back, birthdays, seasonal, frequency caps and text hours per place | normal |
-| 9 | Customer messages in English and French: templates first, the model for wording | normal |
+| 7 | Visits, and customer import from a POS or booking export (CSV): a date on every row, only the columns needed, an attestation you type worded for your country, the evidence kept, and deletion of people with no basis | high |
+| 8 | Lifecycle scheduler: review requests (to every customer, never chosen by how they felt), win-back, birthdays, seasonal, frequency caps, text hours per place, a slow start for imported customers | normal |
+| 9 | Customer messages from templates filled in on your machine, so the model never sees a customer; English and French, with fixed identification and unsubscribe lines | high |
 | 10 | Heartbeat priorities: customers before partners | normal |
 
 ### Find new customers
 
 | # | Step | Risk |
 |---|---|---|
-| 11 | Sign-ups: a QR code that opens a JOIN text, recorded as that person's yes with their text as the evidence and answered with a confirmation carrying the wording each country requires; website form messages recorded as inquiries | high |
-| 12 | Partner lane: nearby businesses and employers, with Canada's published-address rule | normal |
-| 13 | Review replies and neighbourhood listening, with disclosure required in drafts | normal |
+| 11 | Sign-ups: a poster Sellhawk prints with a QR code that opens a JOIN text carrying a version code, recorded as that person's yes with their text as the evidence and answered with a confirmation carrying the wording each country requires; website form messages recorded as inquiries; US texts wait for the 10DLC registration | high |
+| 12 | Partner lane: nearby businesses and employers, from a sending domain apart from customer mail, with Canada's published-address rule | normal |
+| 13 | Review replies (never confirming a patient) and neighbourhood listening, with disclosure required in drafts | normal |
 
 ### Show what worked, then tidy up
 
@@ -113,15 +113,77 @@ The consent and sending checks come first, because every route to a customer, ne
 
 ## Not in the first version
 
-Missed-call text-back and hosted forms need a public address a local tool does not have; sign-ups use the JOIN text and your own website form instead (step 11). Also later: the Google Business Profile API (it needs Google's approval), point-of-sale APIs (CSV first), referral reward tracking, any calling, autopilot for consumer messages, reading Nextdoor or Facebook groups, and countries beyond the US and Canada (until a place has its own rules, Sellhawk sends no marketing there).
+Missed-call text-back and hosted forms need a public address a local tool does not have; sign-ups use the JOIN text and your own website form instead (step 11). Also later: the Google Business Profile API (it needs Google's approval), point-of-sale APIs (CSV first), referral reward tracking, a check of old phone numbers against the FCC's Reassigned Numbers Database, any calling, autopilot for consumer messages, reading Nextdoor or Facebook groups, and countries beyond the US and Canada (until a place has its own rules, Sellhawk sends no marketing there).
 
-## Known risks
+## Risks and what Sellhawk does about them
 
-- **Imported customer lists** are the main legal exposure. The attestation you type when importing is the evidence, so it is specific and never something the agent can do. In Canada, the burden of proving consent is on the sender.
-- **Quebec French.** Whether the French-language rules reach a business outside Quebec writing to a Quebec customer is not settled; Sellhawk writes French for every Quebec customer to be safe.
-- **US state laws keep moving.** Texas brought texts under its telemarketing law in 2025 (consent-based texts were later exempted in a settlement). The state table needs a review each quarter.
-- **Health businesses**: a message that names a treatment can disclose that someone is a patient.
-- **Email unsubscribe**: Sellhawk has no public address for an unsubscribe link, so it uses a `List-Unsubscribe: mailto:` header and a reply-to-stop line, treats either as an opt-out, and keeps reading for them for at least 60 days.
+Each risk names the check that handles it and the build step it lands in. Where something stays with you, it says so. The sources are in [research/local-customers.md](research/local-customers.md#sources-for-the-risks).
+
+### Imported customer lists
+
+The main legal exposure. In Canada the sender has to prove consent, and a bought, rented or scraped list carries none.
+
+- **A date on every row.** Each person's basis comes from their own last visit or purchase, or the day they contacted you, and expires counting from that date, not from the import. A row with no date is kept but gets no basis: nothing is sent to it until they visit again or sign up. (step 7)
+- **An import never creates a yes.** It records "existing customer" or "inquiry" only. A column claiming someone agreed to texts is ignored; texts need the person's own yes. (7)
+- **An attestation that says something.** You type the source (your booking or POS system), the date range, the number of people (it must match what Sellhawk read) and that the list was not bought, rented or scraped, in wording for your country. The agent cannot type it. Sellhawk keeps it with the time, the wording version and a fingerprint of the file, and refuses to send to anyone whose import record is missing. (6, 7)
+- **Only the columns it needs.** Name, email, phone, visit dates and a birthday as month and day. Service, notes and every other column are dropped before anything is stored. (7)
+- **An opt-out always wins.** Opt-outs are kept as fingerprints, so a later import brings no one back, even after the rest of that person's data is deleted. An "unsubscribed" or "do not contact" column becomes an opt-out. (5, 7)
+- **A stale list stops itself.** Imported customers get their first messages at about 25 a day, and a high bounce or opt-out rate pauses the rest, using the kill switch Sellhawk already has. (8)
+- **Ask before consent runs out.** While a customer's implied consent still holds, Sellhawk can ask for their express yes. After it expires it cannot ask by email in Canada: the CRTC treats an email asking for consent as a commercial message itself. (8)
+
+### Quebec French
+
+- **Never English alone.** Quebec customers get French, or French first with English below; a customer who asks for English gets both. When the address and the area code disagree, both places' rules apply, so a possible Quebec customer gets French first. The send step refuses a message to a Quebec or possibly-Quebec customer whose template is not French or French first. (4, 6, 9)
+- **French written by a person.** The French templates are written and checked by a Quebec French speaker, in Quebec usage. The identification and unsubscribe lines are fixed text, never model output. A draft for a Quebec customer that does not read as French is held. (9)
+- **French opt-out words.** ARRÊT and DÉSABONNER, with or without accents, count like STOP. (5)
+- **Signs in the shop.** The QR sign-up poster for a Quebec shop prints in French, with any other language clearly smaller, as the Charter's signage rule requires. (11)
+- Whether the language rules reach a business outside Quebec writing to a Quebec customer stays unsettled; Sellhawk applies them anyway.
+
+### US state laws keep moving
+
+- **One strict US profile.** Every US customer gets texts only between 09:00 and 20:00 on their own clock (Connecticut's start, the Florida, Oklahoma and Maryland end) and at most 3 marketing texts in 24 hours. A state entry can only make this stricter. A local business loses little, and a new state law of the same kind is already covered. (4)
+- **Edges of the map.** Where an area code spans two time zones (850 in Florida), only hours allowed in both count. A +1 number outside the US and Canada (most of the Caribbean) is refused. (4)
+- **Opt-outs are permanent** until the person signs up again, which covers Virginia's rule, in force since January 2026, that a STOP text is honoured for 10 years. (5)
+- **Subject lines tell the truth.** Washington's email law covers any false or misleading subject line (Brown v. Old Navy, 2025), with damages per email and a wave of class actions since. Sellhawk holds an email whose subject claims a deadline or scarcity ("last chance", "ends tonight", "only 3 left") unless you set a real end date for the offer. (6)
+- **Dated rules.** Each rule carries its source, the date it took effect and the date it was last checked. Set up and `sellhawk status` say when the table is more than 90 days past its last check, and a scheduled job in the repository flags entries past their review date. The quarterly review covers Connecticut, Florida, Maryland, Oklahoma, Texas, Virginia, Washington and the FCC's opt-out rules. (4)
+
+### Health businesses
+
+Dental, medical, chiropractic, physiotherapy, optometry, mental health and pharmacy businesses say so in setup (4). That changes five things:
+
+- **No treatment named, anywhere.** No message names a treatment, service or appointment type, and a list of treatment words holds any draft that slips through. (6, 9)
+- **The practice's own services only.** HIPAA treats a message paid for by someone else, such as a product maker, as marketing that needs the patient's written permission, so Sellhawk never sends one. (8)
+- **Review replies never confirm a patient.** Dental practices have paid HHS $10,000 (2019) and $23,000 (2022) for replying to Yelp reviews with patient details. A reply never says the reviewer was a patient or mentions their care; it thanks them and invites them to call. (13)
+- **An agreement with every service that carries a patient message.** Being on a dentist's list is health information, so the mailbox and the text service need a business associate agreement (BAA). Google Workspace and Microsoft 365 offer one; free gmail.com and outlook.com mailboxes don't, so Sellhawk refuses them for patient mail. Twilio signs one only on its Security and Enterprise editions. Until you confirm you have them, patient messages wait. (6)
+- **Patient details never reach the model.** A Claude or ChatGPT subscription comes with no BAA (see the next section, which applies to every business). (9)
+
+In Canada, provincial health privacy laws (Ontario's PHIPA and others) get the same treatment. Washington's My Health My Data Act may reach gyms and med spas; it is on the review list.
+
+### Email unsubscribe without a public address
+
+- **Two ways out in every email.** A `List-Unsubscribe: mailto:` header with a code for each person, so an opt-out sent from a forwarding address still matches, and a visible line: reply STOP, or tap a link that opens an email with "unsubscribe" filled in. CAN-SPAM and CASL both accept an email reply as the way out. Gmail's one-click rule (an HTTPS link) applies to bulk senders, close to 5,000 messages a day to Gmail addresses from one domain, so Sellhawk caps each sending domain well below that. (6)
+- **No send without a fresh read.** A marketing message goes out only if the mailbox and Twilio were read in the last 15 minutes and every opt-out found was applied. (5)
+- **Reading that cannot miss one.** Sellhawk reads from its last confirmed position in the mailbox, not only unread mail, so an unsubscribe you opened on your phone first still counts. After a gap longer than a reader covers (Sellhawk off for more than a week, or a restored backup), it searches the whole gap for opt-outs before anything sends. Today the SMTP reader takes only unread mail and treats a failed read as an empty inbox; step 5 fixes both. (5)
+- **Fixed words first, then caution.** STOP, UNSUBSCRIBE and the other fixed words stop at once; any other reply that reads like an opt-out counts as one until you look. (5)
+- **Reading continues for 60 days** after the last message, even with sending paused (CASL).
+- **If you stop using Sellhawk,** `sellhawk retire` stops sending, keeps reading opt-outs for 60 days, exports the opt-out list for your next tool, then deletes customer data. Opt-outs also land in your own inbox, whatever happens. (5)
+
+### Customer details reaching outside services
+
+Not on the first list, and the widest risk. Drafting with Claude or Codex sends text to a US service. Quebec's privacy law (Law 25) requires a privacy impact assessment before personal information leaves Quebec, and health information needs a BAA.
+
+- **The model never sees a customer.** It writes a template for a group (regulars who are overdue, this week's birthdays) and never sees a name, address, phone number or visit history; the details are filled in on your machine. The code that calls the model accepts only templates and group descriptions, so a customer record cannot be passed to it by mistake. (9)
+- **The other services, too.** Address checkers are skipped for consumers (their addresses came from them, and bounces are handled). The cold-email check (Precleared) is for business contacts only. Webhooks get Sellhawk's own id for a person unless you choose details for that address. A test records every outside request across a customer's whole life in Sellhawk and checks that an email or phone number appears only in the call that sends to them. (6)
+- **Kept only while needed.** People with no basis for 12 months are deleted (their opt-outs stay as fingerprints), and the database file is readable only by you. (7)
+
+### Other risks the first list missed
+
+- **Stale approvals.** At the moment of sending, Sellhawk checks the basis, its expiry, the hours and the place again, and an approval older than 7 days goes back to waiting for you. Twilio's own refusal to text a number that sent STOP (error 21610) counts as an opt-out on every channel. (6)
+- **Partners and customers sharing one reputation.** Cold email to partner businesses draws more complaints than mail to your own customers, so partner outreach must come from a separate sending domain, and the send step refuses it from the customer-mail domain. A domain must pass the email records check before its first campaign. (6, 12)
+- **Review platform rules.** Who gets asked for a review can never depend on how happy they seemed, what they spent or what they replied, and a test proves it. Drafts with a reward or "5 stars" wording are refused. Yelp forbids asking for reviews, so Sellhawk never links to it. Imports don't trigger requests for old visits: only visits in the last 14 days. The holdout that measures results never includes review requests, or "we ask every customer" would be false. The FTC's 2024 rule also bans fake and bought reviews and reviews from staff or family without saying so; Sellhawk never writes or posts a review. (8, 13)
+- **Proof of a JOIN.** A yes is only as good as the wording the person saw. Sellhawk prints the poster, and the QR code puts a version code in the text, which ties each yes to its exact wording. US texts wait until Twilio reports the business-texting (10DLC) registration approved. (11)
+- **Text opt-outs in any words.** The FCC treats STOP, QUIT, END, REVOKE, OPT OUT, CANCEL and UNSUBSCRIBE as opt-outs, and any other reasonable way of saying it. (5)
+- **Reassigned phone numbers.** A number that agreed years ago can belong to someone else now, and the consent does not pass to them. Later: check old numbers against the FCC's Reassigned Numbers Database before texting them.
 
 Voice is not on this roadmap: AI-generated calls are "artificial voice" calls under the TCPA, and Canada's telemarketing rules add their own limits.
 
