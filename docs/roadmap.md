@@ -4,15 +4,39 @@ Sellhawk is for brick-and-mortar businesses in the United States and Canada: res
 
 The research behind these choices is in [research/local-customers.md](research/local-customers.md).
 
-## The five things Sellhawk does
+## What Sellhawk does
+
+Two jobs: find new customers, and keep the ones you have coming back. A third piece shows which messages worked.
+
+### Find new customers
 
 | | What it does | Who it reaches | Why it is allowed |
 |---|---|---|---|
-| **Bring customers back** | Win-back when a customer is overdue by their own visit rhythm, birthday notes, seasonal news | Your own customers | They bought from you, or said yes, and every message carries who you are and a way out |
-| **Get reviews** | Asks every customer after a visit, never only the happy ones, never with a reward; drafts a reply to every review | Your own customers | Same, plus Google's review rules |
-| **Answer the neighbourhood** | Finds people asking "can anyone recommend a ..." near you and drafts a public reply that says who is answering | People who asked in public | You post it yourself; no direct messages to strangers |
-| **Build local partnerships** | Finds nearby businesses and employers that can send customers your way (cross-promotion, staff perks, shared events) and writes to them | Other businesses | Business-to-business email, within each country's rules |
-| **Show what worked** | Counts return visits after each message against a holdout | You | Your own data |
+| **Answer the neighbourhood** | Finds people asking "can anyone recommend a ..." near you and drafts a public reply that says who is answering | People choosing a business right now | You post it yourself; no direct messages to strangers |
+| **Partner businesses** | Finds nearby businesses and employers that can send customers your way (cross-promotion, staff perks, shared events) and writes to them | Other businesses, and through them their customers and staff | Business-to-business email, within each country's rules |
+| **Get reviews** | Asks every customer after a visit, never only the happy ones, never with a reward, and drafts a reply to every review, so you show up higher in Google Maps, where people look for a local business | Asks your own customers; reaches people searching nearby | Google's review rules, and the same basis as any message to a customer |
+| **Sign-ups** | A QR code in the shop opens a text that says JOIN (OUI also works in Quebec), and the messages your website form already emails you arrive as leads | People who chose to hear from you | A JOIN text is their own yes; a form message is an inquiry, which allows email for 6 months |
+
+### Keep them coming back
+
+| | What it does | Who it reaches | Why it is allowed |
+|---|---|---|---|
+| **Win-back** | Writes when a customer is overdue by their own visit rhythm | Your own customers | They bought from you, or said yes, and every message carries who you are and a way out |
+| **Birthdays and seasonal news** | A note on a birthday the customer gave you, and news that fits the season (a holiday menu, winter tires) | Your own customers | Same |
+
+### Show what worked
+
+Sellhawk counts return visits after each message against a holdout (a few customers who got nothing), so you see what a message brought in, not only who opened it. It uses your own data and shows it only to you.
+
+### Why not cold-message consumers
+
+The engine Sellhawk started from finds a company, finds who decides and emails them. It cannot do that for people:
+
+- **Canada:** CASL requires consent before any marketing email or text.
+- **United States:** cold email is legal under CAN-SPAM, but people don't publish their addresses the way businesses do, so the only sources are bought or scraped lists. Those draw spam complaints above the 0.3% limit in [Gmail's sender guidelines](https://support.google.com/a/answer/81126), which gets the mailbox blocked, and with it the mail your real customers expect.
+- **Texts, in both countries:** a marketing text needs consent first. In the US each text sent without it can cost $500 in damages, or up to $1,500 if willful ([47 U.S.C. 227](https://www.law.cornell.edu/uscode/text/47/227)).
+
+So the original engine now finds partner businesses, where cold email is still allowed, and new customers come through the four routes above.
 
 ## The rule under all of it
 
@@ -49,27 +73,47 @@ The rules live in one module, as data per country and per state or province, so 
 
 Each step is one change that leaves the tests passing. High-risk steps (consent, sending, database migrations) get an independent review at the highest effort and your look before they land.
 
+The consent and sending checks come first, because every route to a customer, new or returning, goes through them. Keeping customers comes next: those are people you already have a basis to reach, and the same code then carries every new-customer route.
+
+### Consent and sending, under everything
+
 | # | Step | Risk |
 |---|---|---|
 | 0 | Rename and debrand to Sellhawk | normal |
-| 1 | Remove the Instantly path, the only way an email could leave without the per-message check | high |
+| 1 | Remove the outside sequencer integration, the only way an email could leave without the per-message check | high |
 | 2 | People get a kind (consumer or business contact, defaulting to consumer) and an indexed phone key | high |
 | 3 | The consent ledger gains email, a basis and an expiry | high |
 | 4 | Where each person is (country, state or province) and the rules for each place: US federal, the Florida, Oklahoma and Maryland text limits, Canada and Quebec | high |
 | 5 | One opt-out stops every channel, in one transaction | high |
 | 6 | One egress module: the only code that calls a mail or text provider, with the basis and place rules as its last step | high |
+
+### Keep them coming back
+
+| # | Step | Risk |
+|---|---|---|
 | 7 | Visits, and customer import from a POS or booking export (CSV) with an attestation you type, worded for your country | high |
 | 8 | Lifecycle scheduler: review requests, win-back, birthdays, seasonal, frequency caps and text hours per place | normal |
 | 9 | Customer messages in English and French: templates first, the model for wording | normal |
-| 10 | Heartbeat priorities for customers before partners | normal |
-| 11 | Partner lane: nearby businesses and employers, with Canada's published-address rule | normal |
-| 12 | Reviews and neighbourhood listening, with disclosure required in drafts | normal |
-| 13 | Return-visit attribution on Numbers | normal |
-| 14 | Retire the B2B-only parts: LinkedIn automation, job-board hiring signals, startup presets | low |
+| 10 | Heartbeat priorities: customers before partners | normal |
+
+### Find new customers
+
+| # | Step | Risk |
+|---|---|---|
+| 11 | Sign-ups: a QR code that opens a JOIN text, recorded as that person's yes with their text as the evidence and answered with a confirmation carrying the wording each country requires; website form messages recorded as inquiries | high |
+| 12 | Partner lane: nearby businesses and employers, with Canada's published-address rule | normal |
+| 13 | Review replies and neighbourhood listening, with disclosure required in drafts | normal |
+
+### Show what worked, then tidy up
+
+| # | Step | Risk |
+|---|---|---|
+| 14 | Return-visit attribution on Numbers | normal |
+| 15 | Retire the B2B-only parts: LinkedIn automation, job-board hiring signals, startup presets | low |
 
 ## Not in the first version
 
-Missed-call text-back and hosted forms need a public address a local tool does not have. A QR code in the shop can open a prefilled text ("JOIN", or "JOIN" and "OUI" in Quebec) instead. Also later: the Google Business Profile API (it needs Google's approval), point-of-sale APIs (CSV first), referral reward tracking, any calling, autopilot for consumer messages, reading Nextdoor or Facebook groups, and countries beyond the US and Canada (until a place has its own rules, Sellhawk sends no marketing there).
+Missed-call text-back and hosted forms need a public address a local tool does not have; sign-ups use the JOIN text and your own website form instead (step 11). Also later: the Google Business Profile API (it needs Google's approval), point-of-sale APIs (CSV first), referral reward tracking, any calling, autopilot for consumer messages, reading Nextdoor or Facebook groups, and countries beyond the US and Canada (until a place has its own rules, Sellhawk sends no marketing there).
 
 ## Known risks
 
